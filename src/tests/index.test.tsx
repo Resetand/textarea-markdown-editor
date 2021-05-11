@@ -2,14 +2,12 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 /* eslint-disable react-hooks/exhaustive-deps */
 
-import { MarkdownTextarea, MarkdownTextareaRef } from "../lib/MarkdownTextarea";
+import MarkdownTextarea, { MarkdownTextareaRef } from "../lib";
 import React, { FC, useEffect, useRef, useState } from "react";
-import { fireEvent, render, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { fireEvent, render } from "@testing-library/react";
 
 import { CommandType } from "../lib/types";
 import { stripIndent } from "common-tags";
-import { act } from "react-dom/test-utils";
 
 type TestCase = {
     description: string;
@@ -33,7 +31,6 @@ const testCases: TestCase[] = [
     {
         description: "should insert bold markup",
         commandName: "bold",
-        only: true,
         input: "<>",
         expected: "**<bold>**",
     },
@@ -96,6 +93,7 @@ const testCases: TestCase[] = [
 
     {
         description: "should apply tabulation",
+        only: true,
         commandName: "indent",
         input: `some<>`,
         expected: `some    <>`,
@@ -190,20 +188,19 @@ const testCases: TestCase[] = [
     },
 ];
 
+// TODO: Fix tests
 describe("md formatting common cases", () => {
     testCases.forEach((c) => {
         const runner = c.only ? test.only : c.skip ? test.skip : test;
         runner(c.description, async () => {
             c.before?.();
             const prepare = (value: string) => value.replace(/(<|>)/g, "");
-            let textArea: HTMLTextAreaElement;
             const Example: FC = () => {
                 const [value, setValue] = useState(prepare(c.input));
                 const ref = useRef<MarkdownTextareaRef>(null);
 
                 useEffect(() => {
                     if (!ref.current) return;
-                    textArea = ref.current;
                     const selectionStart = c.input.split("").findIndex((x) => x === "<");
                     const selectionEnd = c.input.split("").findIndex((x) => x === ">") - 1;
                     ref.current.setSelectionRange(selectionStart, selectionEnd);
@@ -216,22 +213,7 @@ describe("md formatting common cases", () => {
             };
 
             const component = render(<Example />);
-
-            // const textArea = component.container.querySelector("textarea")!;
-
-            // await act(async () => {
-            //     await c.act?.(textArea);
-            //     // await sleep(1000);
-            // });
-
-            await sleep(1000);
-            console.log({
-                "textArea.selectionStart": textArea!.selectionStart,
-                "textArea.selectionEnds": textArea!.selectionEnd,
-            });
-            // await sleep(50)
-
-            // console.log({ "textArea.selectionStart": textArea.selectionStart, "textArea.selectionEnd": textArea.selectionEnd });
+            const textArea = component.container.querySelector("textarea")!;
 
             const selectionStart = c.expected.split("").findIndex((x) => x === "<");
             const selectionEnd = c.expected.split("").findIndex((x) => x === ">") - 1;
@@ -244,5 +226,3 @@ describe("md formatting common cases", () => {
         });
     });
 });
-
-const sleep = (n: number) => new Promise((res) => setTimeout(res, n));

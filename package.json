@@ -42,7 +42,7 @@
   },
   "scripts": {
     "build": "tsc -project tsconfig.lib.json",
-    "prepublish": "npm run test && npm run build",
+    "prepublish": "npm run test -- --watchAll=false && npm run build",
     "test": "react-scripts test",
     "sandbox": "react-scripts start"
   },
