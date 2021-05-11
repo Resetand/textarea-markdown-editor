@@ -1,4 +1,4 @@
-import { RefObject } from "react";
+import React, { ComponentPropsWithoutRef, ForwardRefExoticComponent, ReactNode, RefAttributes } from "react";
 /** https://github.com/Microsoft/TypeScript/issues/29729 */
 export declare type LiteralUnion<T extends U, U = string> = T | (Pick<U, never> & {
     _?: never;
@@ -16,13 +16,13 @@ export declare type CommandHandler = (context: CommandHandlerContext) => void | 
 export declare type CommandConfig<TType extends CommandType = CommandType> = {
     handler: CommandHandler;
     shortcut?: string | string[];
+    shortcutPreventDefault?: boolean;
     name: TType;
     enable?: boolean;
 };
 export declare type TextareaElement = HTMLTextAreaElement | null | undefined;
 export declare type MarkdownTextareaOptions = {
     useLinkMarkupOnSelectionPasteUrl: boolean;
-    useIndentTabulation: boolean;
     useIndentListPrefixTabulation: boolean;
     unorderedListSyntax: "-" | "*";
     boldSyntax: "**" | "__";
@@ -41,5 +41,14 @@ export declare type MarkdownTextareaConfig = {
     options?: Partial<MarkdownTextareaOptions>;
 };
 export declare const defaultMarkdownTextareaOptions: MarkdownTextareaOptions;
-export declare const isRefObject: <TAttributes extends unknown>(ref: import("react").Ref<TAttributes>) => ref is RefObject<TAttributes>;
+export declare const isRefObject: <TAttributes extends unknown>(ref: React.Ref<TAttributes>) => ref is React.RefObject<TAttributes>;
+export declare type MarkdownTextareaRef = HTMLTextAreaElement & {
+    trigger: CommandTrigger;
+};
+export declare type MarkdownTextareaProps = Omit<MarkdownTextareaConfig & ComponentPropsWithoutRef<"textarea">, "children">;
+export interface MarkdownTextareaComponent extends ForwardRefExoticComponent<MarkdownTextareaProps & RefAttributes<MarkdownTextareaRef>> {
+    Wrapper: ForwardRefExoticComponent<MarkdownTextareaConfig & RefAttributes<MarkdownTextareaRef> & {
+        children: ReactNode;
+    }>;
+}
 export {};

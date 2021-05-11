@@ -166,9 +166,6 @@ export var nextLineCommandHandler = function (ctx) {
 export var indentCommandHandler = function (_a) {
     var element = _a.element, keyEvent = _a.keyEvent, options = _a.options;
     var cursor = new Cursor(element);
-    if (!options.useIndentTabulation) {
-        return;
-    }
     keyEvent === null || keyEvent === void 0 ? void 0 : keyEvent.preventDefault();
     var currentLine = cursor.getLine();
     var listMatch = ANY_BLANK_LIST_RE.exec(currentLine);
@@ -207,7 +204,7 @@ export var linkPasteCommandHandler = function (ctx) { return __awaiter(void 0, v
                 }
                 before = currentLine.slice(0, position.lineSelectionStart);
                 after = currentLine.slice(position.lineSelectionEnd);
-                raw = Cursor.raw(templateObject_8 || (templateObject_8 = __makeTemplateObject(["", "[", "", "", "](", ")", ""], ["", "[", "", "", "](", ")", ""])), after, Cursor.$, selected, Cursor.$, pastedValue, before);
+                raw = Cursor.raw(templateObject_8 || (templateObject_8 = __makeTemplateObject(["", "[", "", "", "](", ")", ""], ["", "[", "", "", "](", ")", ""])), before, Cursor.$, selected, Cursor.$, pastedValue, after);
                 cursor.spliceContent(raw, { replaceCount: 1 });
                 return [2 /*return*/];
         }

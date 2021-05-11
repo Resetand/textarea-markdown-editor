@@ -21,7 +21,6 @@ export var WELL_KNOWN_COMMANDS = [
 ];
 export var defaultMarkdownTextareaOptions = {
     useIndentListPrefixTabulation: true,
-    useIndentTabulation: true,
     useLinkMarkupOnSelectionPasteUrl: true,
     unorderedListSyntax: "-",
     boldSyntax: "**",

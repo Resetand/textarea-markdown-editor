@@ -5,146 +5,85 @@ import {
     CommandDefine,
     CommandTrigger,
     CommandTriggerInternal,
+    MarkdownTextareaComponent,
     MarkdownTextareaConfig,
     MarkdownTextareaOptions,
-    TextareaElement,
+    MarkdownTextareaProps,
+    MarkdownTextareaRef,
     WELL_KNOWN_COMMANDS,
     defaultMarkdownTextareaOptions,
     isRefObject,
 } from "./types";
 import Mousetrap, { MousetrapInstance, MousetrapStatic } from "mousetrap";
-import React, {
-    ComponentProps,
-    ComponentPropsWithoutRef,
-    ForwardRefExoticComponent,
-    JSXElementConstructor,
-    MutableRefObject,
-    ReactElement,
-    RefAttributes,
-    forwardRef,
-    useCallback,
-    useEffect,
-    useMemo,
-    useRef,
-} from "react";
-
-// import type {For} from 'react'
+import React, { Fragment, MutableRefObject, RefObject, forwardRef, useCallback, useEffect, useMemo, useRef } from "react";
 
 import { findLastIndex } from "./utils";
 import { wellKnownCommands } from "./commands";
 
-export type MarkdownTextareaRef = HTMLTextAreaElement & {
-    trigger: CommandTrigger;
-};
+const CHILDREN_ERROR_MSG = "MarkdownTextarea: child element must be instance of HTMLTextAreaElement";
 
-type TextareaComponentShape = ForwardRefExoticComponent<ComponentPropsWithoutRef<"textarea">> & RefAttributes<any>;
+export const MarkdownTextarea = forwardRef<MarkdownTextareaRef, MarkdownTextareaProps>((props, ref) => {
+    const { commands: userCommands, options: userOptions, ...textareaProps } = props;
+    const textareaNodeRef = useRef<HTMLTextAreaElement>(null);
 
-type InferComponentRef<TComponent extends TextareaComponentShape> = "ref" extends keyof React.PropsWithRef<ComponentProps<TComponent>>
-    ? React.PropsWithRef<ComponentProps<TComponent>>["ref"] extends (...args: any[]) => any
-        ? unknown
-        : Exclude<React.PropsWithRef<ComponentProps<TComponent>>["ref"], (...args: any[]) => any>
-    : unknown;
+    useBootstrap({
+        props,
+        ref,
+        textareaRef: textareaNodeRef,
+    });
 
-type MarkdownTextareaInnerProps<TComponent extends TextareaComponentShape> = MarkdownTextareaConfig & {
-    Component?: TComponent;
-    extractElementFromComponentRef?: (ref: InferComponentRef<TComponent>) => TextareaElement;
-};
+    return <textarea ref={textareaNodeRef} {...textareaProps} />;
+}) as MarkdownTextareaComponent;
 
-export type MarkdownTextareaProps<TComponent extends TextareaComponentShape> = ComponentPropsWithoutRef<"textarea"> &
-    MarkdownTextareaInnerProps<TComponent> &
-    RefAttributes<MarkdownTextareaRef> &
-    ComponentProps<TComponent>;
+MarkdownTextarea.Wrapper = forwardRef<MarkdownTextareaRef, MarkdownTextareaProps>((props, ref) => {
+    const { children } = props;
+    const textareaNodeRef = useRef<HTMLTextAreaElement>();
+    const domHolderElementRef = useRef<HTMLDivElement>(null);
 
-type MarkdownTextareaComponentWithoutRef = <TComponent extends TextareaComponentShape>(
-    props: MarkdownTextareaProps<TComponent>
-) => ReactElement<any, string | JSXElementConstructor<any>>;
+    useEffect(() => {
+        if (React.Children.count(children) !== 1) {
+            throw new TypeError(CHILDREN_ERROR_MSG);
+        }
 
-type MarkdownTextareaComponent = MarkdownTextareaComponentWithoutRef & ForwardRefExoticComponent<RefAttributes<MarkdownTextareaRef>>;
-
-const REF_TYPE_ERROR_MSG = `Component ref is not instance of HTMLTextAreaElement, you can provide extractElementFromComponentRef function to extract element from Component ref`;
-const REF_EXTRACTED_TYPE_ERROR_MSG = `extracted element is not instance of HTMLTextAreaElement`;
-
-export const MarkdownTextarea: MarkdownTextareaComponent = forwardRef(
-    (props: MarkdownTextareaProps<any>, markdownTextareaRef: React.Ref<MarkdownTextareaRef>) => {
-        const {
-            commands: userCommands,
-            options: userOptions,
-            Component: CustomComponent,
-            extractElementFromComponentRef,
-            ...textareaProps
-        } = props;
-
-        const commands = useMemo(() => getCommandsList(userCommands ?? []), [userCommands]);
-
-        const options = useMemo<MarkdownTextareaOptions>(() => Object.assign({}, defaultMarkdownTextareaOptions, userOptions), [
-            userOptions,
-        ]);
-
-        const componentRef = useRef<InferComponentRef<any>>(null);
-        const elementRef = useRef<HTMLTextAreaElement>(null) as MutableRefObject<HTMLTextAreaElement>;
-
-        const trigger = useCommandTrigger({ commands, options });
-
-        useEffect(() => {
-            if (CustomComponent) {
-                const hasExtractor = extractElementFromComponentRef !== undefined && extractElementFromComponentRef instanceof Function;
-
-                if (hasExtractor) {
-                    const supposedExtractedElement = extractElementFromComponentRef?.(componentRef as any);
-                    if (!(supposedExtractedElement instanceof HTMLTextAreaElement)) {
-                        throw new TypeError(REF_EXTRACTED_TYPE_ERROR_MSG);
-                    }
-                    elementRef.current = supposedExtractedElement;
-                }
-                const supposedElement = componentRef.current;
-                if (supposedElement instanceof HTMLTextAreaElement && !hasExtractor) {
-                    throw new TypeError(REF_TYPE_ERROR_MSG);
-                }
+        if (children && domHolderElementRef.current && !textareaNodeRef.current) {
+            const node = domHolderElementRef.current.previousSibling;
+            if (node instanceof HTMLTextAreaElement) {
+                textareaNodeRef.current = node;
+            } else {
+                throw new TypeError(CHILDREN_ERROR_MSG);
             }
-            if (isRefObject(markdownTextareaRef) && elementRef.current) {
-                const refTrigger: CommandTrigger = (command) => {
-                    trigger(command, { __internal: { element: elementRef.current } });
-                };
-                (markdownTextareaRef as any).current = Object.assign(elementRef.current, { trigger: refTrigger });
-            }
-        }, [CustomComponent, markdownTextareaRef, trigger, extractElementFromComponentRef]);
+            domHolderElementRef.current.remove();
+        }
+    }, [children]);
 
-        const mtInstanceRef = useRef<MousetrapInstance | MousetrapStatic>();
+    useBootstrap({
+        props,
+        ref,
+        textareaRef: textareaNodeRef,
+    });
 
-        useEffect(() => {
-            if (!elementRef.current) return;
+    return (
+        <Fragment>
+            {children}
+            <div style={{ display: "none" }} ref={domHolderElementRef} />
+        </Fragment>
+    );
+});
 
-            mtInstanceRef.current?.reset();
-            mtInstanceRef.current = Mousetrap(elementRef.current);
-
-            commands.forEach((command) => {
-                if (command.shortcut) {
-                    mtInstanceRef.current?.bind(command.shortcut, (keyEvent) => {
-                        trigger(command.name, { __internal: { element: elementRef.current, keyEvent } });
-                    });
-                }
-            });
-            return () => {
-                mtInstanceRef.current?.reset();
-                mtInstanceRef.current = undefined;
-            };
-        }, [commands, trigger]);
-
-        return CustomComponent ? (
-            <CustomComponent ref={componentRef} {...(textareaProps as any)} />
-        ) : (
-            <textarea ref={elementRef} {...textareaProps} />
-        );
-    }
-) as any;
-
-type UseCommandTriggerOptions = {
-    commands: CommandConfig[];
-    options: MarkdownTextareaOptions;
+type UseBootstrapOptions = {
+    props: MarkdownTextareaConfig;
+    ref: React.Ref<MarkdownTextareaRef>;
+    textareaRef: RefObject<HTMLTextAreaElement | null | undefined>;
 };
 
-const useCommandTrigger = ({ commands, options }: UseCommandTriggerOptions) => {
-    return useCallback<CommandTriggerInternal>(
+const useBootstrap = ({ props, ref, textareaRef }: UseBootstrapOptions) => {
+    const { commands: userCommands, options: userOptions } = props;
+
+    const markdownTextareaRef = ref as MutableRefObject<MarkdownTextareaRef>;
+    const commands = useMemo(() => getCommandsList(userCommands ?? []), [userCommands]);
+    const options = useMemo<MarkdownTextareaOptions>(() => Object.assign({}, defaultMarkdownTextareaOptions, userOptions), [userOptions]);
+
+    const trigger = useCallback<CommandTriggerInternal>(
         async (name, { __internal: { element, keyEvent } }) => {
             const index = findLastIndex(commands, (c) => c.name === name);
             if (!element) return;
@@ -168,6 +107,48 @@ const useCommandTrigger = ({ commands, options }: UseCommandTriggerOptions) => {
         },
         [commands, options]
     );
+
+    const refTrigger = useCallback<CommandTrigger>((command) => trigger(command, { __internal: { element: textareaRef.current } }), [
+        textareaRef,
+        trigger,
+    ]);
+
+    useEffect(() => {
+        if (isRefObject(markdownTextareaRef) && textareaRef.current) {
+            markdownTextareaRef.current = Object.assign(textareaRef.current, {
+                trigger: refTrigger,
+            });
+        }
+    }, [textareaRef, markdownTextareaRef, refTrigger]);
+
+    const mtInstanceRef = useRef<MousetrapInstance | MousetrapStatic>();
+
+    useEffect(() => {
+        if (!textareaRef.current) return;
+
+        mtInstanceRef.current?.reset();
+        mtInstanceRef.current = Mousetrap(textareaRef.current);
+
+        commands.forEach((command) => {
+            if (command.shortcut) {
+                mtInstanceRef.current?.bind(command.shortcut, (keyEvent) => {
+                    if (command.shortcutPreventDefault) {
+                        keyEvent.preventDefault();
+                    }
+                    trigger(command.name, { __internal: { element: textareaRef.current, keyEvent } });
+                });
+            }
+        });
+        return () => {
+            mtInstanceRef.current?.reset();
+            mtInstanceRef.current = undefined;
+        };
+    }, [commands, textareaRef, trigger]);
+
+    return {
+        commands,
+        options,
+    };
 };
 
 const getCommandsList = (userCommands: CommandDefine[]) => {

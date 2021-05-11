@@ -157,10 +157,6 @@ export const nextLineCommandHandler: CommandHandler = (ctx) => {
 export const indentCommandHandler: CommandHandler = ({ element, keyEvent, options }) => {
     const cursor = new Cursor(element);
 
-    if (!options.useIndentTabulation) {
-        return;
-    }
-
     keyEvent?.preventDefault();
 
     const currentLine = cursor.getLine();

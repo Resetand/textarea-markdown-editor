@@ -66,69 +66,55 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
 import * as reactTriggerChange from "react-trigger-change";
 import { WELL_KNOWN_COMMANDS, defaultMarkdownTextareaOptions, isRefObject, } from "./types";
 import Mousetrap from "mousetrap";
-import React, { forwardRef, useCallback, useEffect, useMemo, useRef, } from "react";
-// import type {For} from 'react'
+import React, { Fragment, forwardRef, useCallback, useEffect, useMemo, useRef } from "react";
 import { findLastIndex } from "./utils";
 import { wellKnownCommands } from "./commands";
-var REF_TYPE_ERROR_MSG = "Component ref is not instance of HTMLTextAreaElement, you can provide extractElementFromComponentRef function to extract element from Component ref";
-var REF_EXTRACTED_TYPE_ERROR_MSG = "extracted element is not instance of HTMLTextAreaElement";
-export var MarkdownTextarea = forwardRef(function (props, markdownTextareaRef) {
-    var userCommands = props.commands, userOptions = props.options, CustomComponent = props.Component, extractElementFromComponentRef = props.extractElementFromComponentRef, textareaProps = __rest(props, ["commands", "options", "Component", "extractElementFromComponentRef"]);
-    var commands = useMemo(function () { return getCommandsList(userCommands !== null && userCommands !== void 0 ? userCommands : []); }, [userCommands]);
-    var options = useMemo(function () { return Object.assign({}, defaultMarkdownTextareaOptions, userOptions); }, [
-        userOptions,
-    ]);
-    var componentRef = useRef(null);
-    var elementRef = useRef(null);
-    var trigger = useCommandTrigger({ commands: commands, options: options });
-    useEffect(function () {
-        if (CustomComponent) {
-            var hasExtractor = extractElementFromComponentRef !== undefined && extractElementFromComponentRef instanceof Function;
-            if (hasExtractor) {
-                var supposedExtractedElement = extractElementFromComponentRef === null || extractElementFromComponentRef === void 0 ? void 0 : extractElementFromComponentRef(componentRef);
-                if (!(supposedExtractedElement instanceof HTMLTextAreaElement)) {
-                    throw new TypeError(REF_EXTRACTED_TYPE_ERROR_MSG);
-                }
-                elementRef.current = supposedExtractedElement;
-            }
-            var supposedElement = componentRef.current;
-            if (supposedElement instanceof HTMLTextAreaElement && !hasExtractor) {
-                throw new TypeError(REF_TYPE_ERROR_MSG);
-            }
-        }
-        if (isRefObject(markdownTextareaRef) && elementRef.current) {
-            var refTrigger = function (command) {
-                trigger(command, { __internal: { element: elementRef.current } });
-            };
-            markdownTextareaRef.current = Object.assign(elementRef.current, { trigger: refTrigger });
-        }
-    }, [CustomComponent, markdownTextareaRef, trigger, extractElementFromComponentRef]);
-    var mtInstanceRef = useRef();
-    useEffect(function () {
-        var _a;
-        if (!elementRef.current)
-            return;
-        (_a = mtInstanceRef.current) === null || _a === void 0 ? void 0 : _a.reset();
-        mtInstanceRef.current = Mousetrap(elementRef.current);
-        commands.forEach(function (command) {
-            var _a;
-            if (command.shortcut) {
-                (_a = mtInstanceRef.current) === null || _a === void 0 ? void 0 : _a.bind(command.shortcut, function (keyEvent) {
-                    trigger(command.name, { __internal: { element: elementRef.current, keyEvent: keyEvent } });
-                });
-            }
-        });
-        return function () {
-            var _a;
-            (_a = mtInstanceRef.current) === null || _a === void 0 ? void 0 : _a.reset();
-            mtInstanceRef.current = undefined;
-        };
-    }, [commands, trigger]);
-    return CustomComponent ? (React.createElement(CustomComponent, __assign({ ref: componentRef }, textareaProps))) : (React.createElement("textarea", __assign({ ref: elementRef }, textareaProps)));
+var CHILDREN_ERROR_MSG = "MarkdownTextarea: child element must be instance of HTMLTextAreaElement";
+export var MarkdownTextarea = forwardRef(function (props, ref) {
+    var userCommands = props.commands, userOptions = props.options, textareaProps = __rest(props, ["commands", "options"]);
+    var textareaNodeRef = useRef(null);
+    useBootstrap({
+        props: props,
+        ref: ref,
+        textareaRef: textareaNodeRef,
+    });
+    return React.createElement("textarea", __assign({ ref: textareaNodeRef }, textareaProps));
 });
-var useCommandTrigger = function (_a) {
-    var commands = _a.commands, options = _a.options;
-    return useCallback(function (name, _a) {
+MarkdownTextarea.Wrapper = forwardRef(function (props, ref) {
+    var children = props.children;
+    var textareaNodeRef = useRef();
+    var domHolderElementRef = useRef(null);
+    useEffect(function () {
+        if (React.Children.count(children) !== 1) {
+            throw new TypeError(CHILDREN_ERROR_MSG);
+        }
+        if (children && domHolderElementRef.current && !textareaNodeRef.current) {
+            var node = domHolderElementRef.current.previousSibling;
+            if (node instanceof HTMLTextAreaElement) {
+                textareaNodeRef.current = node;
+            }
+            else {
+                throw new TypeError(CHILDREN_ERROR_MSG);
+            }
+            domHolderElementRef.current.remove();
+        }
+    }, [children]);
+    useBootstrap({
+        props: props,
+        ref: ref,
+        textareaRef: textareaNodeRef,
+    });
+    return (React.createElement(Fragment, null,
+        children,
+        React.createElement("div", { style: { display: "none" }, ref: domHolderElementRef })));
+});
+var useBootstrap = function (_a) {
+    var props = _a.props, ref = _a.ref, textareaRef = _a.textareaRef;
+    var userCommands = props.commands, userOptions = props.options;
+    var markdownTextareaRef = ref;
+    var commands = useMemo(function () { return getCommandsList(userCommands !== null && userCommands !== void 0 ? userCommands : []); }, [userCommands]);
+    var options = useMemo(function () { return Object.assign({}, defaultMarkdownTextareaOptions, userOptions); }, [userOptions]);
+    var trigger = useCallback(function (name, _a) {
         var _b = _a.__internal, element = _b.element, keyEvent = _b.keyEvent;
         return __awaiter(void 0, void 0, void 0, function () {
             var index, command, result;
@@ -157,6 +143,45 @@ var useCommandTrigger = function (_a) {
             });
         });
     }, [commands, options]);
+    var refTrigger = useCallback(function (command) { return trigger(command, { __internal: { element: textareaRef.current } }); }, [
+        textareaRef,
+        trigger,
+    ]);
+    useEffect(function () {
+        if (isRefObject(markdownTextareaRef) && textareaRef.current) {
+            markdownTextareaRef.current = Object.assign(textareaRef.current, {
+                trigger: refTrigger,
+            });
+        }
+    }, [textareaRef, markdownTextareaRef, refTrigger]);
+    var mtInstanceRef = useRef();
+    useEffect(function () {
+        var _a;
+        if (!textareaRef.current)
+            return;
+        (_a = mtInstanceRef.current) === null || _a === void 0 ? void 0 : _a.reset();
+        mtInstanceRef.current = Mousetrap(textareaRef.current);
+        commands.forEach(function (command) {
+            var _a;
+            if (command.shortcut) {
+                (_a = mtInstanceRef.current) === null || _a === void 0 ? void 0 : _a.bind(command.shortcut, function (keyEvent) {
+                    if (command.shortcutPreventDefault) {
+                        keyEvent.preventDefault();
+                    }
+                    trigger(command.name, { __internal: { element: textareaRef.current, keyEvent: keyEvent } });
+                });
+            }
+        });
+        return function () {
+            var _a;
+            (_a = mtInstanceRef.current) === null || _a === void 0 ? void 0 : _a.reset();
+            mtInstanceRef.current = undefined;
+        };
+    }, [commands, textareaRef, trigger]);
+    return {
+        commands: commands,
+        options: options,
+    };
 };
 var getCommandsList = function (userCommands) {
     var resultCommands = __spreadArrays(wellKnownCommands);
