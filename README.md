@@ -2,7 +2,7 @@
 
 ## Basic Overview
 
-**Markdown textarea** is a simple markdown UI headless editor using only `<textarea/>`. It extend textarea by adding formatting features like shortcuts, invoked commands, and other to make user experience better 🙃
+**Textarea Markdown** is a simple markdown editor using only `<textarea/>`. It extends textarea by adding formatting features like shortcuts, invoked commands, and other to make user experience better 🙃
 
 Essentially this library - just provide textarea Component. You can choose any engine for markdown rendering, any layout. Can use any existing textarea Component and style it as you prefer
 
