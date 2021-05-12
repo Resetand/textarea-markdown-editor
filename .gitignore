@@ -12,7 +12,7 @@
 /build
 /dist
 
-/test-project
+/sandbox
 
 # misc
 .DS_Store

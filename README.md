@@ -23,16 +23,16 @@ Essentially this library - just provide textarea Component. You can choose any e
 
 ```typescript
 import React, { Fragment, useRef, useState } from "react";
-import MarkdownTextarea, { MarkdownTextareaRef } from "markdown-textarea";
+import TextareaMarkdownEditor, { TextareaMarkdownEditorRef } from "textarea-markdown-editor";
 
 function App() {
     const [value, setValue] = useState("");
-    const ref = useRef<MarkdownTextareaRef>(null);
+    const ref = useRef<TextareaMarkdownEditorRef>(null);
 
     return (
         <Fragment>
             <button onClick={() => ref.current?.trigger("bold")}>Bold</button>
-            <MarkdownTextarea ref={ref} value={value} onChange={(e) => setValue(e.target.value)} />
+            <TextareaMarkdownEditor ref={ref} value={value} onChange={(e) => setValue(e.target.value)} />
         </Fragment>
     );
 }
@@ -43,19 +43,22 @@ function App() {
 You can specify or overwrite shortcuts and toggle commands
 
 ```typescript
+import React, { useRef, useState } from "react";
+import TextareaMarkdownEditor, { TextareaMarkdownEditorRef } from "textarea-markdown-editor";
+
 function App() {
     const [value, setValue] = useState("");
-    const ref = useRef<MarkdownTextareaRef>(null);
+    const ref = useRef<TextareaMarkdownEditorRef>(null);
 
     return (
-        <MarkdownTextarea
+        <TextareaMarkdownEditor
             ref={ref}
             value={value}
             onChange={(e) => setValue(e.target.value)}
             commands={[
                 {
                     name: "code",
-                    shortcut: ["command+shift+c", "ctrl+shift+c"],
+                    shortcut: ["command+/", "ctrl+/"],
                     shortcutPreventDefault: true,
                 },
                 {
@@ -73,21 +76,21 @@ It is great solution with simple and intuitive api. You can read more about comb
 
 ### Custom textarea `Component`
 
-You can use custom textarea Component. Just wrap it with `MarkdownTextarea.Wrapper`
+You can use custom textarea Component. Just wrap it with `TextareaMarkdownEditor.Wrapper`
 
 ```typescript
-import React, { FC, useRef, useState } from "react";
-import MarkdownTextarea, { MarkdownTextareaRef } from "markdown-textarea";
+import React, { useRef, useState } from "react";
+import TextareaMarkdownEditor, { TextareaMarkdownEditorRef } from "textarea-markdown-editor";
 import TextareaAutosize from "react-textarea-autosize";
 
 function App() {
     const [value, setValue] = useState("");
-    const ref = useRef<MarkdownTextareaRef>(null);
+    const ref = useRef<TextareaMarkdownEditorRef>(null);
 
     return (
-        <MarkdownTextarea.Wrapper ref={ref}>
+        <TextareaMarkdownEditor.Wrapper ref={ref}>
             <TextareaAutosize value={value} onChange={(e) => setValue(e.target.value)} />
-        </MarkdownTextarea.Wrapper>
+        </TextareaMarkdownEditor.Wrapper>
     );
 }
 ```
@@ -96,27 +99,27 @@ function App() {
 
 ## API
 
-#### `MarkdownTextareaProps`
+#### `TextareaMarkdownEditorProps`
 
-`MarkdownTextarea` Component props
+`TextareaMarkdownEditor` Component props
 
 ℹ️ extends `HTMLTextAreaElement` props
 
 ```typescript
-options?: MarkdownTextareaOptions;
+options?: TextareaMarkdownEditorOptions;
 commands?: CommandDefine[];
 ```
 
 #### `MarkdownWrapperTextareaProps`
 
-`MarkdownTextarea.Wrapper` Component props
+`TextareaMarkdownEditor.Wrapper` Component props
 
 ```typescript
-options?: MarkdownTextareaOptions;
+options?: TextareaMarkdownEditorOptions;
 commands?: CommandDefine[];
 ```
 
-#### `MarkdownTextareaOptions`
+#### `TextareaMarkdownEditorOptions`
 
 Option prop config
 
@@ -160,13 +163,13 @@ export type CommandHandler = (context: CommandHandlerContext) => void | Promise<
 export type CommandHandlerContext = {
     element: HTMLTextAreaElement;
     keyEvent?: KeyboardEvent;
-    options: MarkdownTextareaOptions;
+    options: TextareaMarkdownEditorOptions;
 };
 ```
 
-#### `MarkdownTextareaRef`
+#### `TextareaMarkdownEditorRef`
 
-Ref `MarkdownTextarea` or `MarkdownTextarea.Wrapper` instance
+Ref `TextareaMarkdownEditor` or `TextareaMarkdownEditor.Wrapper` instance
 
 ℹ️ extends `HTMLTextAreaElement` instance
 
@@ -186,8 +189,7 @@ about position context and more.
 
 ```typescript
 import React, { Fragment, useRef, useState } from "react";
-import MarkdownTextarea, { MarkdownTextareaRef, Cursor } from "markdown-textarea";
-import { CommandHandler } from "markdown-textarea/types";
+import TextareaMarkdownEditor, { TextareaMarkdownEditorRef, Cursor, CommandHandler } from "textarea-markdown-editor";
 
 /** Inserts 🙃 at the end of the line and select it */
 const emojiCommandHandler: CommandHandler = ({ element }) => {
@@ -202,12 +204,12 @@ const emojiCommandHandler: CommandHandler = ({ element }) => {
 
 function App() {
     const [value, setValue] = useState("");
-    const ref = useRef<MarkdownTextareaRef>(null);
+    const ref = useRef<TextareaMarkdownEditorRef>(null);
 
     return (
         <Fragment>
             <button onClick={() => ref.current?.trigger("insert-emoji")}>Insert 🙃</button>
-            <MarkdownTextarea
+            <TextareaMarkdownEditor
                 ref={ref}
                 value={value}
                 onChange={(e) => setValue(e.target.value)}

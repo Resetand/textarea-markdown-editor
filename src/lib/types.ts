@@ -33,7 +33,7 @@ export type CommandType = LiteralUnion<typeof WELL_KNOWN_COMMANDS[number], strin
 export type CommandHandlerContext = {
     element: HTMLTextAreaElement;
     keyEvent?: KeyboardEvent;
-    options: MarkdownTextareaOptions;
+    options: TextareaMarkdownEditorOptions;
 };
 
 export type CommandHandler = (context: CommandHandlerContext) => void | Promise<void> | Promise<string> | string;
@@ -46,9 +46,7 @@ export type CommandConfig<TType extends CommandType = CommandType> = {
     enable?: boolean;
 };
 
-export type TextareaElement = HTMLTextAreaElement | null | undefined;
-
-export type MarkdownTextareaOptions = {
+export type TextareaMarkdownEditorOptions = {
     /** toggle auto wrapping with link markup when pasting the selected word */
     useLinkMarkupOnSelectionPasteUrl: boolean;
 
@@ -72,12 +70,12 @@ export type CommandTriggerInternal = (
 ) => Promise<any> | any;
 export type CommandDefine = PartialBy<CommandConfig, "handler">;
 
-export type MarkdownTextareaConfig = {
+export type TextareaMarkdownEditorConfig = {
     commands?: CommandDefine[];
-    options?: Partial<MarkdownTextareaOptions>;
+    options?: Partial<TextareaMarkdownEditorOptions>;
 };
 
-export const defaultMarkdownTextareaOptions: MarkdownTextareaOptions = {
+export const defaultTextareaMarkdownEditorOptions: TextareaMarkdownEditorOptions = {
     useIndentListPrefixTabulation: true,
     useLinkMarkupOnSelectionPasteUrl: true,
     unorderedListSyntax: "-",
@@ -89,12 +87,13 @@ export const isRefObject = <TAttributes extends any>(ref: React.Ref<TAttributes>
     return ref !== null && typeof ref === "object";
 };
 
-export type MarkdownTextareaRef = HTMLTextAreaElement & {
+export type TextareaMarkdownEditorRef = HTMLTextAreaElement & {
     trigger: CommandTrigger;
 };
 
-export type MarkdownTextareaProps = Omit<MarkdownTextareaConfig & ComponentPropsWithoutRef<"textarea">, "children">;
+export type TextareaMarkdownEditorProps = Omit<TextareaMarkdownEditorConfig & ComponentPropsWithoutRef<"textarea">, "children">;
 
-export interface MarkdownTextareaComponent extends ForwardRefExoticComponent<MarkdownTextareaProps & RefAttributes<MarkdownTextareaRef>> {
-    Wrapper: ForwardRefExoticComponent<MarkdownTextareaConfig & RefAttributes<MarkdownTextareaRef> & { children: ReactNode }>;
+export interface TextareaMarkdownEditorComponent
+    extends ForwardRefExoticComponent<TextareaMarkdownEditorProps & RefAttributes<TextareaMarkdownEditorRef>> {
+    Wrapper: ForwardRefExoticComponent<TextareaMarkdownEditorConfig & RefAttributes<TextareaMarkdownEditorRef> & { children: ReactNode }>;
 }
