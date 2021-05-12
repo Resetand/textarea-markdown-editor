@@ -183,11 +183,11 @@ trigger: (command: string) => void;
 ## Advanced usage 🧬
 
 You can implement your **own commands**. For this you need to registry command by adding new item in `commands` array.
-CommandConfig contain `name`, `handler` and optional `shortcut`.
+Item should contain `name`, `handler` and optional `shortcut`.
 
-**Handler** - invoked by trigger call or by pressing shortcuts and it make side effect with textarea.
+**Handler** - function invoked by trigger call or by pressing shortcuts, it make side effect with textarea.
 Basically you can make with `element` whatever you want, but most likely you need to manipulate with content. For this
-purpose you can use `Cursor` service. This wrapper combines content and selection manipulation and also proved calculated information
+purpose you can use `Cursor`. This wrapper combines content and selection manipulation and also provide calculated information
 about position context and more.
 
 ```typescript
