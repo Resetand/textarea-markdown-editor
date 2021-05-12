@@ -5,13 +5,13 @@ import {
     CommandDefine,
     CommandTrigger,
     CommandTriggerInternal,
-    TextareaMarkdownEditorComponent,
-    TextareaMarkdownEditorConfig,
-    TextareaMarkdownEditorOptions,
-    TextareaMarkdownEditorProps,
-    TextareaMarkdownEditorRef,
+    TextareaMarkdownComponent,
+    TextareaMarkdownConfig,
+    TextareaMarkdownOptions,
+    TextareaMarkdownProps,
+    TextareaMarkdownRef,
     WELL_KNOWN_COMMANDS,
-    defaultTextareaMarkdownEditorOptions,
+    defaultTextareaMarkdownOptions,
     isRefObject,
 } from "./types";
 import Mousetrap, { MousetrapInstance, MousetrapStatic } from "mousetrap";
@@ -20,9 +20,9 @@ import React, { Fragment, MutableRefObject, RefObject, forwardRef, useCallback, 
 import { findLastIndex } from "./utils";
 import { wellKnownCommands } from "./commands";
 
-const CHILDREN_ERROR_MSG = "TextareaMarkdownEditor: child element must be instance of HTMLTextAreaElement";
+const CHILDREN_ERROR_MSG = "TextareaMarkdown: child element must be instance of HTMLTextAreaElement";
 
-export const TextareaMarkdownEditor = forwardRef<TextareaMarkdownEditorRef, TextareaMarkdownEditorProps>((props, ref) => {
+export const TextareaMarkdown = forwardRef<TextareaMarkdownRef, TextareaMarkdownProps>((props, ref) => {
     const { commands: userCommands, options: userOptions, ...textareaProps } = props;
     const textareaNodeRef = useRef<HTMLTextAreaElement>(null);
 
@@ -33,9 +33,9 @@ export const TextareaMarkdownEditor = forwardRef<TextareaMarkdownEditorRef, Text
     });
 
     return <textarea ref={textareaNodeRef} {...textareaProps} />;
-}) as TextareaMarkdownEditorComponent;
+}) as TextareaMarkdownComponent;
 
-TextareaMarkdownEditor.Wrapper = forwardRef<TextareaMarkdownEditorRef, TextareaMarkdownEditorProps>((props, ref) => {
+TextareaMarkdown.Wrapper = forwardRef<TextareaMarkdownRef, TextareaMarkdownProps>((props, ref) => {
     const { children } = props;
     const textareaNodeRef = useRef<HTMLTextAreaElement>();
     const domHolderElementRef = useRef<HTMLDivElement>(null);
@@ -71,20 +71,17 @@ TextareaMarkdownEditor.Wrapper = forwardRef<TextareaMarkdownEditorRef, TextareaM
 });
 
 type UseBootstrapOptions = {
-    props: TextareaMarkdownEditorConfig;
-    ref: React.Ref<TextareaMarkdownEditorRef>;
+    props: TextareaMarkdownConfig;
+    ref: React.Ref<TextareaMarkdownRef>;
     textareaRef: RefObject<HTMLTextAreaElement | null | undefined>;
 };
 
 const useBootstrap = ({ props, ref, textareaRef }: UseBootstrapOptions) => {
     const { commands: userCommands, options: userOptions } = props;
 
-    const TextareaMarkdownEditorRef = ref as MutableRefObject<TextareaMarkdownEditorRef>;
+    const TextareaMarkdownRef = ref as MutableRefObject<TextareaMarkdownRef>;
     const commands = useMemo(() => getCommandsList(userCommands ?? []), [userCommands]);
-    const options = useMemo<TextareaMarkdownEditorOptions>(
-        () => Object.assign({}, defaultTextareaMarkdownEditorOptions, userOptions),
-        [userOptions]
-    );
+    const options = useMemo<TextareaMarkdownOptions>(() => Object.assign({}, defaultTextareaMarkdownOptions, userOptions), [userOptions]);
 
     const trigger = useCallback<CommandTriggerInternal>(
         async (name, { __internal: { element, keyEvent } }) => {
@@ -117,12 +114,12 @@ const useBootstrap = ({ props, ref, textareaRef }: UseBootstrapOptions) => {
     );
 
     useEffect(() => {
-        if (isRefObject(TextareaMarkdownEditorRef) && textareaRef.current) {
-            TextareaMarkdownEditorRef.current = Object.assign(textareaRef.current, {
+        if (isRefObject(TextareaMarkdownRef) && textareaRef.current) {
+            TextareaMarkdownRef.current = Object.assign(textareaRef.current, {
                 trigger: refTrigger,
             });
         }
-    }, [textareaRef, TextareaMarkdownEditorRef, refTrigger]);
+    }, [textareaRef, TextareaMarkdownRef, refTrigger]);
 
     const mtInstanceRef = useRef<MousetrapInstance | MousetrapStatic>();
 

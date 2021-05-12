@@ -2,7 +2,7 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 /* eslint-disable react-hooks/exhaustive-deps */
 
-import TextareaMarkdownEditor, { TextareaMarkdownEditorRef } from "../lib";
+import TextareaMarkdown, { TextareaMarkdownRef } from "../lib";
 import React, { FC, useEffect, useRef, useState } from "react";
 import { fireEvent, render } from "@testing-library/react";
 
@@ -197,7 +197,7 @@ describe("md formatting common cases", () => {
             const prepare = (value: string) => value.replace(/(<|>)/g, "");
             const Example: FC = () => {
                 const [value, setValue] = useState(prepare(c.input));
-                const ref = useRef<TextareaMarkdownEditorRef>(null);
+                const ref = useRef<TextareaMarkdownRef>(null);
 
                 useEffect(() => {
                     if (!ref.current) return;
@@ -209,7 +209,7 @@ describe("md formatting common cases", () => {
                         ref.current.trigger?.(c.commandName);
                     }
                 }, []);
-                return <TextareaMarkdownEditor ref={ref} value={value} onChange={(e) => setValue(e.target.value)} />;
+                return <TextareaMarkdown ref={ref} value={value} onChange={(e) => setValue(e.target.value)} />;
             };
 
             const component = render(<Example />);

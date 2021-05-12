@@ -1,16 +1,16 @@
 export { WELL_KNOWN_COMMANDS } from "./types";
 export type {
-    TextareaMarkdownEditorRef,
+    TextareaMarkdownRef,
     CommandHandler,
     CommandHandlerContext,
     CommandTrigger,
     CommandType,
-    TextareaMarkdownEditorProps,
-    TextareaMarkdownEditorOptions,
+    TextareaMarkdownProps as TextareaMarkdownProps,
+    TextareaMarkdownOptions,
     CommandConfig,
     CommandDefine,
-    TextareaMarkdownEditorConfig,
+    TextareaMarkdownConfig,
 } from "./types";
 export { Cursor } from "./Cursor";
 
-export { TextareaMarkdownEditor as default } from "./TextareaMarkdownEditor";
+export { TextareaMarkdown as default } from "./TextareaMarkdown";

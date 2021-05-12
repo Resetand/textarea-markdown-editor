@@ -23,11 +23,11 @@ Essentially this library - just provide textarea Component. You can choose any e
 
 ```typescript
 import React, { Fragment, useRef, useState } from "react";
-import TextareaMarkdown, { TextareaMarkdownEditorRef } from "textarea-markdown-editor";
+import TextareaMarkdown, { TextareaMarkdownRef } from "textarea-markdown-editor";
 
 function App() {
     const [value, setValue] = useState("");
-    const ref = useRef<TextareaMarkdownEditorRef>(null);
+    const ref = useRef<TextareaMarkdownRef>(null);
 
     return (
         <Fragment>
@@ -44,11 +44,11 @@ You can specify or overwrite shortcuts and toggle commands
 
 ```typescript
 import React, { useRef, useState } from "react";
-import TextareaMarkdown, { TextareaMarkdownEditorRef } from "textarea-markdown-editor";
+import TextareaMarkdown, { TextareaMarkdownRef } from "textarea-markdown-editor";
 
 function App() {
     const [value, setValue] = useState("");
-    const ref = useRef<TextareaMarkdownEditorRef>(null);
+    const ref = useRef<TextareaMarkdownRef>(null);
 
     return (
         <TextareaMarkdown
@@ -80,12 +80,12 @@ You can use custom textarea Component. Just wrap it with `TextareaMarkdown.Wrapp
 
 ```typescript
 import React, { useRef, useState } from "react";
-import TextareaMarkdown, { TextareaMarkdownEditorRef } from "textarea-markdown-editor";
+import TextareaMarkdown, { TextareaMarkdownRef } from "textarea-markdown-editor";
 import TextareaAutosize from "react-textarea-autosize";
 
 function App() {
     const [value, setValue] = useState("");
-    const ref = useRef<TextareaMarkdownEditorRef>(null);
+    const ref = useRef<TextareaMarkdownRef>(null);
 
     return (
         <TextareaMarkdown.Wrapper ref={ref}>
@@ -99,27 +99,27 @@ function App() {
 
 ## API
 
-#### `TextareaMarkdownEditorProps`
+#### `TextareaMarkdownProps`
 
-`TextareaMarkdownEditor` Component props
+`TextareaMarkdown` Component props
 
 ℹ️ extends `HTMLTextAreaElement` props
 
 ```typescript
-options?: TextareaMarkdownEditorOptions;
+options?: TextareaMarkdownOptions;
 commands?: CommandDefine[];
 ```
 
-#### `MarkdownWrapperTextareaProps`
+#### `TextareaMarkdownWrapperProps`
 
 `TextareaMarkdown.Wrapper` Component props
 
 ```typescript
-options?: TextareaMarkdownEditorOptions;
+options?: TextareaMarkdownOptions;
 commands?: CommandDefine[];
 ```
 
-#### `TextareaMarkdownEditorOptions`
+#### `TextareaMarkdownOptions`
 
 Option prop config
 
@@ -163,11 +163,11 @@ export type CommandHandler = (context: CommandHandlerContext) => void | Promise<
 export type CommandHandlerContext = {
     element: HTMLTextAreaElement;
     keyEvent?: KeyboardEvent;
-    options: TextareaMarkdownEditorOptions;
+    options: TextareaMarkdownOptions;
 };
 ```
 
-#### `TextareaMarkdownEditorRef`
+#### `TextareaMarkdownRef`
 
 Ref `TextareaMarkdown` or `TextareaMarkdown.Wrapper` instance
 
@@ -189,7 +189,7 @@ about position context and more.
 
 ```typescript
 import React, { Fragment, useRef, useState } from "react";
-import TextareaMarkdown, { TextareaMarkdownEditorRef, Cursor, CommandHandler } from "textarea-markdown-editor";
+import TextareaMarkdown, { TextareaMarkdownRef, Cursor, CommandHandler } from "textarea-markdown-editor";
 
 /** Inserts 🙃 at the end of the line and select it */
 const emojiCommandHandler: CommandHandler = ({ element }) => {
@@ -204,7 +204,7 @@ const emojiCommandHandler: CommandHandler = ({ element }) => {
 
 function App() {
     const [value, setValue] = useState("");
-    const ref = useRef<TextareaMarkdownEditorRef>(null);
+    const ref = useRef<TextareaMarkdownRef>(null);
 
     return (
         <Fragment>
