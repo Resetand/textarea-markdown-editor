@@ -162,7 +162,7 @@ export const indentCommandHandler: CommandHandler = ({ element, keyEvent, option
     const currentLine = cursor.getLine();
     const listMatch = ANY_BLANK_LIST_RE.exec(currentLine);
     const indent = " ".repeat(INDENT_SPACE_SIZE + cursor.getIndentSize());
-    if (options.useIndentListPrefixTabulation && listMatch) {
+    if (options.useListTabulation && listMatch) {
         const [, , prefix] = listMatch;
         const newPrefix = !isNaN(parseFloat(prefix)) && prefix.split(".").length <= 2 ? prefix + "1." : prefix;
         cursor.spliceContent(Cursor.raw`${indent}${newPrefix} ${Cursor.$}`, { replaceCount: 1 });
@@ -187,7 +187,7 @@ export const linkPasteCommandHandler = async (ctx: CommandHandlerContext) => {
         return /\[.*\]\($/gi.test(before) && /^\)/gi.test(after);
     })();
 
-    if (!selected || !ctx.options.useLinkMarkupOnSelectionPasteUrl || isSelectedInLinkMarkup || isSelectedUrl) {
+    if (!selected || isSelectedInLinkMarkup || isSelectedUrl) {
         return;
     }
 
@@ -254,10 +254,12 @@ export const italicCommandHandler: CommandHandler = (ctx) => {
     singleLineWrapper({ ...ctx, placeholder: "italic", markup: ctx.options.italicSyntax });
 };
 
-export const createHeadlineCommandHandler = (level: number): CommandHandler => (ctx) => {
-    const prefix = "#".repeat(clamp(level, 1, 6)) + " ";
-    mapCurrentLine(ctx.element, (line) => prefix + line.replace(/^#{0,6}\s+/g, ""));
-};
+export const createHeadlineCommandHandler =
+    (level: number): CommandHandler =>
+    (ctx) => {
+        const prefix = "#".repeat(clamp(level, 1, 6)) + " ";
+        mapCurrentLine(ctx.element, (line) => prefix + line.replace(/^#{0,6}\s+/g, ""));
+    };
 
 export const orderedListCommandHandler: CommandHandler = (ctx) => {
     mapCurrentLine(ctx.element, (line) => "1. " + line);

@@ -102,79 +102,73 @@ function App() {
 
 ## API
 
-#### `TextareaMarkdownProps`
+#### `Props`
 
-`TextareaMarkdown` Component props
+ℹ️ `TextareaMarkdown` accepts all props which native textarea support
 
-ℹ️ extends `HTMLTextAreaElement` props
+| Property     | Description                     | Type                    |
+| ------------ | ------------------------------- | ----------------------- |
+| **options**  | Options config                  | TextareaMarkdownOptions |
+| **commands** | Array of commands configuration | CommandDefine           |
 
-```typescript
-options?: TextareaMarkdownOptions;
-commands?: CommandDefine[];
-```
-
-#### `TextareaMarkdownWrapperProps`
-
-`TextareaMarkdown.Wrapper` Component props
-
-```typescript
-options?: TextareaMarkdownOptions;
-commands?: CommandDefine[];
-```
+---
 
 #### `TextareaMarkdownOptions`
 
-Option prop config
+| Property                | Description                                   | Type    | Default |
+| ----------------------- | --------------------------------------------- | ------- | ------- |
+| **useListTabulation**   | Toggle tabulation lists prefix within content | boolean | `true`  |
+| **unorderedListSyntax** | Unordered list prefix syntax                  | string  | `-`     |
+| **boldSyntax**          | Bold wrapper syntax                           | string  | `**`    |
+| **italicSyntax**        | italic wrapper syntax                         | string  | `*`     |
 
-```typescript
-/** toggle auto wrapping with link markup when pasting the selected word */
-useLinkMarkupOnSelectionPasteUrl?: boolean;
+---
 
-/** toggle tabulation lists prefix with content  */
-useIndentListPrefixTabulation?: boolean;
+#### `Built-in commands`
 
-/** unordered list prefix syntax  */
-unorderedListSyntax?: "-" | "*";
+| Name               | Description                                                      | Shortcut               | Prevent default behavior |
+| ------------------ | ---------------------------------------------------------------- | ---------------------- | ------------------------ |
+| **bold**           | Insert or wrap bold markup                                       | `ctrl/command+b`       | `false`                  |
+| **italic**         | Insert or wrap italic markup                                     | `ctrl/command+i`       | `false`                  |
+| **strike-through** | Insert or wrap strike-through markup                             | `ctrl/command+shift+x` | `false`                  |
+| **next-line**      | Wrapping lists sequence `meta`                                   | `enter`                | `false`                  |
+| **indent**         | Insert intent on tab                                             | `tab`                  | `true`                   |
+| **link-paste**     | Wrap pasted links in markup if text selected `meta`              | `ctrl/command+v`       | `true`                   |
+| **link**           | Insert link markup                                               |                        |                          |
+| **unordered-list** | Insert unordered list markup                                     |                        |                          |
+| **ordered-list**   | Insert ordered list markup                                       |                        |                          |
+| **code-block**     | Insert or wrap code block markup                                 |                        |                          |
+| **code-inline**    | Insert or wrap inline code markup                                |                        |                          |
+| **code**           | Insert or wrap inline or block code markup dependent of selected |                        |                          |
+| **block-quotes**   | Insert block-quotes markup                                       |                        |                          |
+| **h1**             | Insert h1 headline                                               |                        |                          |
+| **h2**             | Insert h2 headline                                               |                        |                          |
+| **h3**             | Insert h3 headline                                               |                        |                          |
+| **h4**             | Insert h4 headline                                               |                        |                          |
+| **h5**             | Insert h5 headline                                               |                        |                          |
+| **h6**             | Insert h6 headline                                               |                        |                          |
 
-/** bold wrapper syntax  */
-boldSyntax?: "**" | "__";
+ℹ️ Do not need to trigger meta commands
 
-/** italic wrapper syntax  */
-italicSyntax?: "*" | "_";
-```
+---
 
 #### `CommandDefine`
 
-Commands array item
+| Property                   | Description                                                           | Type           | Default |
+| -------------------------- | --------------------------------------------------------------------- | -------------- | ------- |
+| **name**                   | Command name                                                          | boolean        |         |
+| **shortcut**               | Shortcut combinations ([Mousetrap.js](https://craig.is/killing/mice)) | boolean        |         |
+| **handler**                | Handler function, using for custom commands                           | CommandHandler |         |
+| **shortcutPreventDefault** | Toggle key event prevent                                              | boolean        | false   |
+| **enable**                 | Toggle command enable                                                 | boolean        | true    |
 
-```typescript
-name: string;
-/** for custom commands */
-handler?: CommandHandler;
-shortcut?: string | string[];
-shortcutPreventDefault?: boolean;
-enable?: boolean;
-```
-
-#### `CommandHandler`
-
-Custom handler signature
-
-```typescript
-export type CommandHandler = (context: CommandHandlerContext) => void | Promise<void> | Promise<string> | string;
-
-export type CommandHandlerContext = {
-    element: HTMLTextAreaElement;
-    keyEvent?: KeyboardEvent;
-    options: TextareaMarkdownOptions;
-};
-```
+---
 
 #### `TextareaMarkdownRef`
 
-Ref `TextareaMarkdown` or `TextareaMarkdown.Wrapper` instance
+Ref `TextareaMarkdown` instance
 
-ℹ️ extends `HTMLTextAreaElement` instance
+ℹ️ Extends `HTMLTextAreaElement` instance
 
 ```typescript
 trigger: (command: string) => void;
@@ -183,7 +177,7 @@ trigger: (command: string) => void;
 ## Advanced usage 🧬
 
 You can implement your **own commands**. For this you need to registry command by adding new item in `commands` array.
-Item should contain `name`, `handler` and optional `shortcut`.
+Item should contains `name`, `handler` and optional `shortcut`.
 
 **Handler** - function invoked by trigger call or by pressing shortcuts, it make side effect with textarea.
 Basically you can make with `element` whatever you want, but most likely you need to manipulate with content. For this
@@ -223,6 +217,18 @@ function App() {
 }
 
 export default App;
+```
+
+#### `CommandHandler` signature
+
+```typescript
+export type CommandHandler = (context: CommandHandlerContext) => void | Promise<void> | Promise<string> | string;
+
+export type CommandHandlerContext = {
+    element: HTMLTextAreaElement;
+    keyEvent?: KeyboardEvent;
+    options: TextareaMarkdownOptions;
+};
 ```
 
 👀 You can find more examples [here](https://github.com/Resetand/textarea-markdown-editor/blob/master/src/lib/handlers.ts#L62)

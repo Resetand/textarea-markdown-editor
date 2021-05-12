@@ -47,19 +47,9 @@ export type CommandConfig<TType extends CommandType = CommandType> = {
 };
 
 export type TextareaMarkdownOptions = {
-    /** toggle auto wrapping with link markup when pasting the selected word */
-    useLinkMarkupOnSelectionPasteUrl: boolean;
-
-    /** toggle tabulation lists prefix with content  */
-    useIndentListPrefixTabulation: boolean;
-
-    /** unordered list prefix syntax  */
+    useListTabulation: boolean;
     unorderedListSyntax: "-" | "*";
-
-    /** bold wrapper syntax  */
     boldSyntax: "**" | "__";
-
-    /** italic wrapper syntax  */
     italicSyntax: "*" | "_";
 };
 
@@ -76,8 +66,7 @@ export type TextareaMarkdownConfig = {
 };
 
 export const defaultTextareaMarkdownOptions: TextareaMarkdownOptions = {
-    useIndentListPrefixTabulation: true,
-    useLinkMarkupOnSelectionPasteUrl: true,
+    useListTabulation: true,
     unorderedListSyntax: "-",
     boldSyntax: "**",
     italicSyntax: "*",
