@@ -7,7 +7,7 @@
 Essentially this library - just provide textarea Component. You can choose any engine for markdown rendering, any layout. Can use any existing textarea Component and style it as you prefer
 
 <p align="center">
-  <img src="img/overview.gif" />
+  <img src="https://raw.githubusercontent.com/Resetand/textarea-markdown-editor/master/img/overview.gif" />
 </p>
 
 ### 🎯 Features
