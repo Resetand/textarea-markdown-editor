@@ -66,7 +66,7 @@ export type TextareaMarkdownEditorOptions = {
 export type CommandTrigger = (command: CommandType) => void | string;
 export type CommandTriggerInternal = (
     command: CommandType,
-    options: { __internal: { element: HTMLTemplateElement | null | undefined; keyEvent?: KeyboardEvent } }
+    options: { __internal: { element: HTMLTextAreaElement | null | undefined; keyEvent?: KeyboardEvent } }
 ) => Promise<any> | any;
 export type CommandDefine = PartialBy<CommandConfig, "handler">;
 
