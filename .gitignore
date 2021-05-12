@@ -12,6 +12,8 @@
 /build
 /dist
 
+/sandbox/node_modules
+
 
 # misc
 .DS_Store
