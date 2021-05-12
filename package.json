@@ -5,6 +5,14 @@
   "homepage": "https://github.com/Resetand/markdown-textarea",
   "author": "Resetand",
   "license": "MIT",
+  "keywords": [
+    "react",
+    "textarea",
+    "markdown",
+    "editor",
+    "formatting",
+    "shortcuts"
+  ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
