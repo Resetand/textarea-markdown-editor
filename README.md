@@ -2,9 +2,9 @@
 
 ## Basic Overview
 
-**Markdown textarea** is a UI headless simple markdown editor using only `<textarea/>` and adds formatting features like shortcuts, invoked commands, and and others to make your users happier 🙃
+**Markdown textarea** is a simple markdown UI headless editor using only `<textarea/>`. It extend textarea by adding formatting features like shortcuts, invoked commands, and other to make user experience better 🙃
 
-Essentially this library - just provide textarea Component. You can choose any engine for markdown rendering, any layout, can use any existing textarea Component and style it as you prefer
+Essentially this library - just provide textarea Component. You can choose any engine for markdown rendering, any layout. Can use any existing textarea Component and style it as you prefer
 
 <p align="center">
   <img src="img/overview.gif" />
@@ -23,7 +23,7 @@ Essentially this library - just provide textarea Component. You can choose any e
 
 ```typescript
 import React, { Fragment, useRef, useState } from "react";
-import TextareaMarkdownEditor, { TextareaMarkdownEditorRef } from "textarea-markdown-editor";
+import TextareaMarkdown, { TextareaMarkdownEditorRef } from "textarea-markdown-editor";
 
 function App() {
     const [value, setValue] = useState("");
@@ -32,7 +32,7 @@ function App() {
     return (
         <Fragment>
             <button onClick={() => ref.current?.trigger("bold")}>Bold</button>
-            <TextareaMarkdownEditor ref={ref} value={value} onChange={(e) => setValue(e.target.value)} />
+            <TextareaMarkdown ref={ref} value={value} onChange={(e) => setValue(e.target.value)} />
         </Fragment>
     );
 }
@@ -44,14 +44,14 @@ You can specify or overwrite shortcuts and toggle commands
 
 ```typescript
 import React, { useRef, useState } from "react";
-import TextareaMarkdownEditor, { TextareaMarkdownEditorRef } from "textarea-markdown-editor";
+import TextareaMarkdown, { TextareaMarkdownEditorRef } from "textarea-markdown-editor";
 
 function App() {
     const [value, setValue] = useState("");
     const ref = useRef<TextareaMarkdownEditorRef>(null);
 
     return (
-        <TextareaMarkdownEditor
+        <TextareaMarkdown
             ref={ref}
             value={value}
             onChange={(e) => setValue(e.target.value)}
@@ -80,7 +80,7 @@ You can use custom textarea Component. Just wrap it with `TextareaMarkdownEditor
 
 ```typescript
 import React, { useRef, useState } from "react";
-import TextareaMarkdownEditor, { TextareaMarkdownEditorRef } from "textarea-markdown-editor";
+import TextareaMarkdown, { TextareaMarkdownEditorRef } from "textarea-markdown-editor";
 import TextareaAutosize from "react-textarea-autosize";
 
 function App() {
@@ -88,9 +88,9 @@ function App() {
     const ref = useRef<TextareaMarkdownEditorRef>(null);
 
     return (
-        <TextareaMarkdownEditor.Wrapper ref={ref}>
+        <TextareaMarkdown.Wrapper ref={ref}>
             <TextareaAutosize value={value} onChange={(e) => setValue(e.target.value)} />
-        </TextareaMarkdownEditor.Wrapper>
+        </TextareaMarkdown.Wrapper>
     );
 }
 ```
@@ -112,7 +112,7 @@ commands?: CommandDefine[];
 
 #### `MarkdownWrapperTextareaProps`
 
-`TextareaMarkdownEditor.Wrapper` Component props
+`TextareaMarkdown.Wrapper` Component props
 
 ```typescript
 options?: TextareaMarkdownEditorOptions;
@@ -189,7 +189,7 @@ about position context and more.
 
 ```typescript
 import React, { Fragment, useRef, useState } from "react";
-import TextareaMarkdownEditor, { TextareaMarkdownEditorRef, Cursor, CommandHandler } from "textarea-markdown-editor";
+import TextareaMarkdown, { TextareaMarkdownEditorRef, Cursor, CommandHandler } from "textarea-markdown-editor";
 
 /** Inserts 🙃 at the end of the line and select it */
 const emojiCommandHandler: CommandHandler = ({ element }) => {
@@ -209,7 +209,7 @@ function App() {
     return (
         <Fragment>
             <button onClick={() => ref.current?.trigger("insert-emoji")}>Insert 🙃</button>
-            <TextareaMarkdownEditor
+            <TextareaMarkdown
                 ref={ref}
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
@@ -218,7 +218,11 @@ function App() {
         </Fragment>
     );
 }
+
+export default App;
 ```
+
+👀 You can find more examples [here](https://github.com/Resetand/textarea-markdown-editor/blob/master/src/lib/handlers.ts#L62)
 
 ℹ️ Note that mutation `element.value` will not trigger `change` event on textarea element. Use `cursor.setValue(...)`
 or just return new content from handler.
