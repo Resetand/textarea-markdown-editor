@@ -16,7 +16,8 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
-    "dist/**/*"
+    "dist/**/*",
+    "img/**/*"
   ],
   "peerDependencies": {
     "react": "^16.9.0",
