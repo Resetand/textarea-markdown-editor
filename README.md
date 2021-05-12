@@ -76,7 +76,7 @@ It is great solution with simple and intuitive api. You can read more about comb
 
 ### Custom textarea `Component`
 
-You can use custom textarea Component. Just wrap it with `TextareaMarkdownEditor.Wrapper`
+You can use custom textarea Component. Just wrap it with `TextareaMarkdown.Wrapper`
 
 ```typescript
 import React, { useRef, useState } from "react";
@@ -169,7 +169,7 @@ export type CommandHandlerContext = {
 
 #### `TextareaMarkdownEditorRef`
 
-Ref `TextareaMarkdownEditor` or `TextareaMarkdownEditor.Wrapper` instance
+Ref `TextareaMarkdown` or `TextareaMarkdown.Wrapper` instance
 
 ℹ️ extends `HTMLTextAreaElement` instance
 
