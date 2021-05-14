@@ -5,8 +5,8 @@ import { Cursor } from "./Cursor";
 
 // eslint-disable-next-line no-useless-escape
 const ANY_URL_RE = /(https?|ftp):\/\/(-\.)?([^\s/?\.#-]+\.?)+(\/[^\s]*)?$/i;
-const ANY_LIST_RE = /^(\s*(-|\*|(\d\.){1,2})\s+)(.+)/;
-const ANY_BLANK_LIST_RE = /^(\s*(-|\*|(\d\.){1,2})\s{0,1})$/;
+const ANY_LIST_RE = /^(\s*(-|\*|>|(\d\.){1,2})\s+)(.+)/;
+const ANY_BLANK_LIST_RE = /^(\s*(-|\*|>|(\d\.){1,2})\s{0,1})$/;
 
 const INDENT_SPACE_SIZE = 4;
 
@@ -108,13 +108,9 @@ const isTargetAlreadyWrapped = (element: HTMLTextAreaElement, markup: string) =>
     const currentLine = cursor.getLine();
     const position = cursor.getCurrentPosition();
     const clumpLine = (value: number) => clamp(value, 0, currentLine.length);
-    const escapedMarkup = escapeRegExp(markup);
-    const offsettedTarget = currentLine.slice(
-        clumpLine(position.lineSelectionStart - markup.length),
-        clumpLine(position.lineSelectionEnd + markup.length)
-    );
-    const re = new RegExp(`${escapedMarkup}.+${escapedMarkup}`, "gi");
-    return re.test(offsettedTarget);
+    const prefix = currentLine.slice(clumpLine(position.lineSelectionStart - markup.length), position.lineSelectionStart);
+    const suffix = currentLine.slice(position.lineSelectionEnd, clumpLine(position.lineSelectionEnd + markup.length));
+    return prefix === markup && suffix === markup;
 };
 
 export const nextLineCommandHandler: CommandHandler = (ctx) => {
@@ -125,6 +121,20 @@ export const nextLineCommandHandler: CommandHandler = (ctx) => {
         const prevLine = cursor.getLine(position.lineNumber - 1) || "";
         const currentLine = cursor.getLine();
         const listMatch = ANY_LIST_RE.exec(prevLine);
+
+        if (ANY_BLANK_LIST_RE.test(prevLine)) {
+            // replace by empty string
+            cursor.spliceContent(null, {
+                startLineNumber: position.lineNumber - 1,
+                replaceCount: 1,
+            });
+            // and insert extra enter
+            cursor.spliceContent(Cursor.raw`\n`, {
+                startLineNumber: position.lineNumber,
+                replaceCount: 1,
+            });
+            return;
+        }
 
         if (listMatch === null) {
             return;
