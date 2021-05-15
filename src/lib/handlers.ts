@@ -5,16 +5,45 @@ import { Cursor } from "./Cursor";
 
 // eslint-disable-next-line no-useless-escape
 const ANY_URL_RE = /(https?|ftp):\/\/(-\.)?([^\s/?\.#-]+\.?)+(\/[^\s]*)?$/i;
-const ANY_LIST_RE = /^(\s*(-|\*|>|(\d\.){1,2})\s+)(.+)/;
-const ANY_BLANK_LIST_RE = /^(\s*(-|\*|>|(\d\.){1,2})\s{0,1})$/;
+const ANY_IMAGE_URL_RE = /(https?|ftp):\/\/(-\.)?([^\s/?\.#-]+\.?)+(\/[^\s]*)?\.(png|tiff|tif|bmp|jpg|jpeg|gif|eps|webp|bmp|dib|svg)$/i;
+const ANY_SEQUENCE_RE = /^(\s*(-|\*|>|(\d\.){1,2})\s+)(.+)/;
+const ANY_BLANK_SEQUENCE_RE = /^(\s*(-|\*|>|(\d\.){1,2})\s{0,1})$/;
 
 const INDENT_SPACE_SIZE = 4;
 
-export const mapCurrentLine = (element: HTMLTextAreaElement, mapper: (line: string) => string) => {
+type InsertPrefixOptions = {
+    element: HTMLTextAreaElement;
+    placeholder?: string;
+    prefix: string;
+    replaceBefore?: RegExp | boolean;
+    useUnprefix?: boolean;
+};
+
+export const insertPrefix = ({ element, prefix, placeholder = "", useUnprefix = true, replaceBefore = false }: InsertPrefixOptions) => {
     const cursor = new Cursor(element);
     const currentLine = cursor.getLine();
-    const mappedLine = mapper(currentLine);
-    cursor.spliceContent(Cursor.raw`${mappedLine}${Cursor.$}`, { replaceCount: 1 });
+
+    if (!currentLine) {
+        const raw = Cursor.raw`${prefix}${Cursor.$}${placeholder}${Cursor.$}`;
+        cursor.spliceContent(raw, { replaceCount: 1 });
+        return;
+    }
+
+    const prefixPattern = new RegExp(`^${escapeRegExp(prefix)}`);
+
+    if (useUnprefix && prefixPattern.test(currentLine)) {
+        const raw = Cursor.raw`${currentLine.replace(prefixPattern, "")}${Cursor.$}`;
+        cursor.spliceContent(raw, { replaceCount: 1 });
+        return;
+    }
+
+    if (replaceBefore) {
+        const pattern = replaceBefore === true ? new RegExp(`^${escapeRegExp(prefix)}`) : replaceBefore;
+        const raw = Cursor.raw`${prefix}${currentLine.replace(pattern, "")}${Cursor.$}`;
+        cursor.spliceContent(raw, { replaceCount: 1 });
+        return;
+    }
+    cursor.spliceContent(Cursor.raw`${prefix}${currentLine}${Cursor.$}`, { replaceCount: 1 });
 };
 
 type SingleLineWrapperOptions = {
@@ -74,8 +103,8 @@ export const linkCommandHandler: CommandHandler = (ctx) => {
     const selected = currentLine.slice(lineSelectionStart, lineSelectionEnd);
 
     // Slice text before and after selection
-    const after = currentLine.slice(0, lineSelectionStart);
-    const before = currentLine.slice(lineSelectionEnd);
+    const before = currentLine.slice(0, lineSelectionStart);
+    const after = currentLine.slice(lineSelectionEnd);
 
     const linkPlaceholder = "example";
     const urlPlaceholder = "url";
@@ -100,6 +129,21 @@ export const linkCommandHandler: CommandHandler = (ctx) => {
     // ----------------------------------------------------------------------------------
 };
 
+export const imageCommandHandler: CommandHandler = (ctx) => {
+    const cursor = new Cursor(ctx.element);
+    const { lineSelectionStart, lineSelectionEnd } = cursor.getCurrentPosition();
+    const currentLine = cursor.getLine();
+    const before = currentLine.slice(0, lineSelectionStart);
+    const after = currentLine.slice(lineSelectionEnd);
+
+    const placeholder = "image";
+    const url = cursor.getSelected() || "image.png";
+
+    const raw = Cursor.raw`${before}![${placeholder}](${Cursor.$}${url}${Cursor.$})${after}`;
+
+    cursor.spliceContent(raw, { replaceCount: 1 });
+};
+
 /**
  * Checks if target is wrapped in markup
  */
@@ -120,19 +164,16 @@ export const nextLineCommandHandler: CommandHandler = (ctx) => {
         const position = cursor.getCurrentPosition();
         const prevLine = cursor.getLine(position.lineNumber - 1) || "";
         const currentLine = cursor.getLine();
-        const listMatch = ANY_LIST_RE.exec(prevLine);
+        const listMatch = ANY_SEQUENCE_RE.exec(prevLine);
 
-        if (ANY_BLANK_LIST_RE.test(prevLine)) {
+        if (ANY_BLANK_SEQUENCE_RE.test(prevLine)) {
             // replace by empty string
-            cursor.spliceContent(null, {
+            cursor.removeLines(position.lineNumber);
+            cursor.spliceContent(Cursor.raw`\n${Cursor.$}`, {
                 startLineNumber: position.lineNumber - 1,
                 replaceCount: 1,
             });
-            // and insert extra enter
-            cursor.spliceContent(Cursor.raw`\n`, {
-                startLineNumber: position.lineNumber,
-                replaceCount: 1,
-            });
+
             return;
         }
 
@@ -170,7 +211,7 @@ export const indentCommandHandler: CommandHandler = ({ element, keyEvent, option
     keyEvent?.preventDefault();
 
     const currentLine = cursor.getLine();
-    const listMatch = ANY_BLANK_LIST_RE.exec(currentLine);
+    const listMatch = ANY_BLANK_SEQUENCE_RE.exec(currentLine);
     const indent = " ".repeat(INDENT_SPACE_SIZE + cursor.getIndentSize());
     if (options.useListTabulation && listMatch) {
         const [, , prefix] = listMatch;
@@ -209,7 +250,8 @@ export const linkPasteCommandHandler = async (ctx: CommandHandlerContext) => {
 
     const before = currentLine.slice(0, position.lineSelectionStart);
     const after = currentLine.slice(position.lineSelectionEnd);
-    const raw = Cursor.raw`${before}[${Cursor.$}${selected}${Cursor.$}](${pastedValue})${after}`;
+    const isImage = ANY_IMAGE_URL_RE.test(pastedValue);
+    const raw = Cursor.raw`${before}${isImage ? "!" : ""}[${Cursor.$}${selected}${Cursor.$}](${pastedValue})$${after}`;
 
     cursor.spliceContent(raw, { replaceCount: 1 });
 };
@@ -233,7 +275,7 @@ export const codeBlockCommandHandler: CommandHandler = (ctx) => {
     }
 
     const prefix = currentLine && !selected ? "\n" : "";
-    const content = selected || "code block";
+    const content = selected || ctx.options.codeBlockPlaceholder;
     const raw = Cursor.raw`${prefix}${markup}\n${Cursor.$}${content}${Cursor.$}\n${markup}`;
 
     cursor.spliceContent(raw, {
@@ -257,35 +299,54 @@ export const codeSelectedCommandHandler: CommandHandler = (ctx) => {
 };
 
 export const boldCommandHandler: CommandHandler = (ctx) => {
-    singleLineWrapper({ ...ctx, placeholder: "bold", markup: ctx.options.boldSyntax });
+    singleLineWrapper({ ...ctx, placeholder: ctx.options.boldPlaceholder, markup: ctx.options.boldSyntax });
 };
 
 export const italicCommandHandler: CommandHandler = (ctx) => {
-    singleLineWrapper({ ...ctx, placeholder: "italic", markup: ctx.options.italicSyntax });
+    singleLineWrapper({ ...ctx, placeholder: ctx.options.italicPlaceholder, markup: ctx.options.italicSyntax });
 };
 
 export const createHeadlineCommandHandler =
     (level: number): CommandHandler =>
     (ctx) => {
         const prefix = "#".repeat(clamp(level, 1, 6)) + " ";
-        mapCurrentLine(ctx.element, (line) => prefix + line.replace(/^#{0,6}\s+/g, ""));
+        const { headlinePlaceholder } = ctx.options;
+        const placeholder = headlinePlaceholder instanceof Function ? headlinePlaceholder(level) : headlinePlaceholder;
+        insertPrefix({
+            prefix,
+            placeholder,
+            replaceBefore: /^#{0,6}\s+/,
+            element: ctx.element,
+        });
     };
 
 export const orderedListCommandHandler: CommandHandler = (ctx) => {
-    mapCurrentLine(ctx.element, (line) => "1. " + line);
+    insertPrefix({
+        element: ctx.element,
+        prefix: "1. ",
+        placeholder: ctx.options.orderedListPlaceholder,
+    });
 };
 
 export const unorderedListCommandHandler: CommandHandler = (ctx) => {
-    mapCurrentLine(ctx.element, (line) => `${ctx.options.unorderedListSyntax} ` + line);
+    insertPrefix({
+        element: ctx.element,
+        prefix: `${ctx.options.unorderedListSyntax} `,
+        placeholder: ctx.options.unorderedListPlaceholder,
+    });
 };
 
 export const blockQuotesCommandHandler: CommandHandler = (ctx) => {
-    mapCurrentLine(ctx.element, (line) => "> " + line);
+    insertPrefix({
+        element: ctx.element,
+        prefix: "> ",
+        placeholder: ctx.options.blockQuotesPlaceholder,
+    });
 };
 
 export const codeInlineCommandHandler: CommandHandler = (ctx) => {
-    singleLineWrapper({ ...ctx, placeholder: "code", markup: "`" });
+    singleLineWrapper({ ...ctx, placeholder: ctx.options.codeInlinePlaceholder, markup: "`" });
 };
 export const strikeThroughCommandHandler: CommandHandler = (ctx) => {
-    singleLineWrapper({ ...ctx, placeholder: "strike-through", markup: "~~" });
+    singleLineWrapper({ ...ctx, placeholder: ctx.options.strikeThroughPlaceholder, markup: "~~" });
 };

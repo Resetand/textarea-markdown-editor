@@ -38,6 +38,7 @@
     "@types/react-dom": "16.9.0",
     "common-tags": "1.8.0",
     "jest": "^26.6.3",
+    "jest-environment-jsdom-sixteen": "^2.0.0",
     "react": "16.9.0",
     "react-dom": "16.9.0",
     "ts-jest": "^26.5.6",
@@ -45,7 +46,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "test": "npx jest",
+    "test": "npx jest --env=jsdom-sixteen",
     "prepublish": "npm run test -- --watchAll=false && npm run build"
   },
   "eslintConfig": {

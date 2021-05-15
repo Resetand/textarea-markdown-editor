@@ -24,6 +24,7 @@ export const WELL_KNOWN_COMMANDS = [
     "code-inline",
     "code",
     "link",
+    "image",
     "link-paste",
     "block-quotes",
 ] as const;
@@ -51,6 +52,31 @@ export type TextareaMarkdownOptions = {
     unorderedListSyntax: "-" | "*";
     boldSyntax: "**" | "__";
     italicSyntax: "*" | "_";
+    boldPlaceholder: string;
+    italicPlaceholder: string;
+    strikeThroughPlaceholder: string;
+    codeInlinePlaceholder: string;
+    codeBlockPlaceholder: string;
+    orderedListPlaceholder: string;
+    unorderedListPlaceholder: string;
+    headlinePlaceholder: string | ((level: number) => string);
+    blockQuotesPlaceholder: string;
+};
+
+export const defaultTextareaMarkdownOptions: TextareaMarkdownOptions = {
+    useListTabulation: true,
+    unorderedListSyntax: "-",
+    boldSyntax: "**",
+    italicSyntax: "*",
+    boldPlaceholder: "bold",
+    italicPlaceholder: "italic",
+    strikeThroughPlaceholder: "strike through",
+    codeInlinePlaceholder: "code",
+    codeBlockPlaceholder: "code block",
+    orderedListPlaceholder: "ordered list",
+    unorderedListPlaceholder: "unordered list",
+    headlinePlaceholder: (lvl) => `headline ${lvl}`,
+    blockQuotesPlaceholder: "quote",
 };
 
 export type CommandTrigger = (command: CommandType) => void | string;
@@ -63,13 +89,6 @@ export type CommandDefine = PartialBy<CommandConfig, "handler">;
 export type TextareaMarkdownConfig = {
     commands?: CommandDefine[];
     options?: Partial<TextareaMarkdownOptions>;
-};
-
-export const defaultTextareaMarkdownOptions: TextareaMarkdownOptions = {
-    useListTabulation: true,
-    unorderedListSyntax: "-",
-    boldSyntax: "**",
-    italicSyntax: "*",
 };
 
 export const isRefObject = <TAttributes extends any>(ref: React.Ref<TAttributes>): ref is RefObject<TAttributes> => {

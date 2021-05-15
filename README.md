@@ -41,6 +41,8 @@ function App() {
 }
 ```
 
+ℹ️ Ref instance provide `trigger` function to invoke commands
+
 ### Customize commands
 
 You can specify or overwrite shortcuts and toggle commands
@@ -113,54 +115,63 @@ function App() {
 
 ---
 
-#### `TextareaMarkdownOptions`
-
-| Property                | Description                                   | Type    | Default |
-| ----------------------- | --------------------------------------------- | ------- | ------- |
-| **useListTabulation**   | Toggle tabulation lists prefix within content | boolean | `true`  |
-| **unorderedListSyntax** | Unordered list prefix syntax                  | string  | `-`     |
-| **boldSyntax**          | Bold wrapper syntax                           | string  | `**`    |
-| **italicSyntax**        | italic wrapper syntax                         | string  | `*`     |
-
----
-
 #### `Built-in commands`
 
-| Name               | Description                                                      | Shortcut               | Prevent default behavior |
-| ------------------ | ---------------------------------------------------------------- | ---------------------- | ------------------------ |
-| **bold**           | Insert or wrap bold markup                                       | `ctrl/command+b`       | `false`                  |
-| **italic**         | Insert or wrap italic markup                                     | `ctrl/command+i`       | `false`                  |
-| **strike-through** | Insert or wrap strike-through markup                             | `ctrl/command+shift+x` | `false`                  |
-| **next-line**      | Wrapping lists sequence `meta`                                   | `enter`                | `false`                  |
-| **indent**         | Insert intent on tab                                             | `tab`                  | `true`                   |
-| **link-paste**     | Wrap pasted links in markup if text selected `meta`              | `ctrl/command+v`       | `true`                   |
-| **link**           | Insert link markup                                               |                        |                          |
-| **unordered-list** | Insert unordered list markup                                     |                        |                          |
-| **ordered-list**   | Insert ordered list markup                                       |                        |                          |
-| **code-block**     | Insert or wrap code block markup                                 |                        |                          |
-| **code-inline**    | Insert or wrap inline code markup                                |                        |                          |
-| **code**           | Insert or wrap inline or block code markup dependent of selected |                        |                          |
-| **block-quotes**   | Insert block-quotes markup                                       |                        |                          |
-| **h1**             | Insert h1 headline                                               |                        |                          |
-| **h2**             | Insert h2 headline                                               |                        |                          |
-| **h3**             | Insert h3 headline                                               |                        |                          |
-| **h4**             | Insert h4 headline                                               |                        |                          |
-| **h5**             | Insert h5 headline                                               |                        |                          |
-| **h6**             | Insert h6 headline                                               |                        |                          |
+| Name               | Description                                                      | Shortcut               |
+| ------------------ | ---------------------------------------------------------------- | ---------------------- |
+| **bold**           | Insert or wrap bold markup                                       | `ctrl/command+b`       |
+| **italic**         | Insert or wrap italic markup                                     | `ctrl/command+i`       |
+| **strike-through** | Insert or wrap strike-through markup                             | `ctrl/command+shift+x` |
+| **next-line**      | Wrapping sequence `meta`                                         | `enter`                |
+| **indent**         | Insert intent on tab                                             | `tab`                  |
+| **link-paste**     | Wrap pasted links in markup if text selected `meta`              | `ctrl/command+v`       |
+| **link**           | Insert link markup                                               |                        |
+| **image**          | Insert image markup                                              |                        |
+| **unordered-list** | Insert unordered list markup                                     |                        |
+| **ordered-list**   | Insert ordered list markup                                       |                        |
+| **code-block**     | Insert or wrap code block markup                                 |                        |
+| **code-inline**    | Insert or wrap inline code markup                                |                        |
+| **code**           | Insert or wrap inline or block code markup dependent of selected |                        |
+| **block-quotes**   | Insert block-quotes markup                                       |                        |
+| **h1**             | Insert h1 headline                                               |                        |
+| **h2**             | Insert h2 headline                                               |                        |
+| **h3**             | Insert h3 headline                                               |                        |
+| **h4**             | Insert h4 headline                                               |                        |
+| **h5**             | Insert h5 headline                                               |                        |
+| **h6**             | Insert h6 headline                                               |                        |
 
 ℹ️ Do not need to trigger meta commands
 
 ---
 
+#### `TextareaMarkdownOptions`
+
+| Property                     | Description                                   | Type               | Default                      |
+| ---------------------------- | --------------------------------------------- | ------------------ | ---------------------------- |
+| **useListTabulation**        | Toggle tabulation lists prefix within content | boolean            | `true`                       |
+| **unorderedListSyntax**      | Unordered list prefix syntax                  | string             | `-`                          |
+| **boldSyntax**               | Bold wrapper syntax                           | string             | `**`                         |
+| **italicSyntax**             | Italic wrapper syntax                         | string             | `*`                          |
+| **boldPlaceholder**          |                                               | string             | `bold`                       |
+| **italicPlaceholder**        |                                               | string             | `italic`                     |
+| **strikeThroughPlaceholder** |                                               | string             | `strike through`             |
+| **codeInlinePlaceholder**    |                                               | string             | `code`                       |
+| **codeBlockPlaceholder**     |                                               | string             | `code block`                 |
+| **unorderedListPlaceholder** |                                               | string             | `ordered list`               |
+| **headlinePlaceholder**      |                                               | string \| Function | `(lvl) => 'headline ' + lvl` |
+| **blockQuotesPlaceholder**   |                                               | string             | `quote`                      |
+
+---
+
 #### `CommandDefine`
 
-| Property                   | Description                                                           | Type           | Default |
-| -------------------------- | --------------------------------------------------------------------- | -------------- | ------- |
-| **name**                   | Command name                                                          | boolean        |         |
-| **shortcut**               | Shortcut combinations ([Mousetrap.js](https://craig.is/killing/mice)) | boolean        |         |
-| **handler**                | Handler function, using for custom commands                           | CommandHandler |         |
-| **shortcutPreventDefault** | Toggle key event prevent                                              | boolean        | false   |
-| **enable**                 | Toggle command enable                                                 | boolean        | true    |
+| Property                   | Description                                                           | Type           |
+| -------------------------- | --------------------------------------------------------------------- | -------------- |
+| **name**                   | Command name                                                          | string         |
+| **shortcut**               | Shortcut combinations ([Mousetrap.js](https://craig.is/killing/mice)) | string         |
+| **handler**                | Handler function, using for custom commands                           | CommandHandler |
+| **shortcutPreventDefault** | Toggle key event prevent                                              | boolean        |
+| **enable**                 | Toggle command enable                                                 | boolean        |
 
 ---
 

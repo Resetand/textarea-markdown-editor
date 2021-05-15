@@ -3,6 +3,8 @@
         "autosize",
         "browserslist",
         "splited",
-        "textarea"
+        "textarea",
+        "unprefix",
+        "use"
     ]
 }
