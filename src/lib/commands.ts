@@ -13,6 +13,7 @@ import {
     nextLineCommandHandler,
     orderedListCommandHandler,
     strikeThroughCommandHandler,
+    unindentCommandHandler,
     unorderedListCommandHandler,
 } from "./handlers";
 import { CommandConfig } from "./types";
@@ -38,6 +39,11 @@ export const wellKnownCommands: CommandConfig[] = [
         shortcut: "tab",
         name: "indent",
         handler: indentCommandHandler,
+    },
+    {
+        shortcut: "shift+tab",
+        name: "unindent",
+        handler: unindentCommandHandler,
     },
     {
         shortcut: metaCombination("v"),
@@ -105,5 +111,4 @@ export const wellKnownCommands: CommandConfig[] = [
         name: "h6",
         handler: createHeadlineCommandHandler(6),
     },
-
 ];

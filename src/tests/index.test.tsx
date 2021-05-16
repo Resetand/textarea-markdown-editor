@@ -59,6 +59,18 @@ const testCases: TestCase[] = [
             some **<important>** information
         `,
     },
+    {
+        description: "should wrap bold only single lin",
+        commandName: "bold",
+        input: stripIndent`
+            <some information
+            some important information>
+        `,
+        expected: stripIndent`
+            **<some information>**
+            some important information
+        `,
+    },
 
     {
         skip: true,
@@ -97,6 +109,30 @@ const testCases: TestCase[] = [
         expected: `some    <>`,
     },
     {
+        description: "should apply tabulation inside line",
+        commandName: "indent",
+        input: `some<> content`,
+        expected: `some    <> content`,
+    },
+    {
+        description: "should apply tabulation inside line with selection replace",
+        commandName: "indent",
+        input: `some <selected> content`,
+        expected: `some     <> content`,
+    },
+    {
+        description: "should unindent",
+        commandName: "unindent",
+        input: `    some content<>`,
+        expected: `some content<>`,
+    },
+    {
+        description: "should unindent #2",
+        commandName: "unindent",
+        input: ` some <selected> content`,
+        expected: `some selected content<>`,
+    },
+    {
         description: "should apply tabulation within list prefix",
         commandName: "indent",
         input: stripIndent`
@@ -108,6 +144,45 @@ const testCases: TestCase[] = [
             - option 1
             - option 2
                 - <>`,
+    },
+    {
+        description: "should tabulate ordered list",
+        commandName: "indent",
+        input: stripIndent`
+            1. option 1
+            2. option 2
+            3. <>`,
+
+        expected: stripIndent`
+            1. option 1
+            2. option 2
+                2.1. <>`,
+    },
+    {
+        description: "should unindent ordered list",
+        commandName: "unindent",
+        input: stripIndent`
+            1. option 1
+            2. option 2
+                2.1. content<>`,
+
+        expected: stripIndent`
+            1. option 1
+            2. option 2
+            3. content<>`,
+    },
+    {
+        description: "should tabulate ordered list (case with already tabulated)",
+        commandName: "indent",
+
+        input: stripIndent`
+            1. option 1
+            2. option 2
+                2.1. <>`,
+        expected: stripIndent`
+            1. option 1
+            2. option 2
+                2.1.     <>`,
     },
     {
         description: "should insert title prefix (h1)",
@@ -205,6 +280,22 @@ const testCases: TestCase[] = [
                 print('hello, world')
                 return 'multiline'>
             ${"```"}`,
+    },
+    {
+        description: "should unwrap code block",
+        commandName: "code-block",
+
+        input: stripIndent`
+            ${"```"}
+            <def main():
+                print('hello, world')
+                return 'multiline'>
+            ${"```"}`,
+
+        expected: stripIndent`
+            <def main():
+                print('hello, world')
+                return 'multiline'>`,
     },
 ];
 

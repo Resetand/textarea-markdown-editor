@@ -1,5 +1,5 @@
 import { CommandHandler, CommandHandlerContext } from "./types";
-import { clamp, escapeRegExp, getClipboardText } from "./utils";
+import { clamp, escapeRegExp, getClipboardText, trimChars } from "./utils";
 
 import { Cursor } from "./Cursor";
 
@@ -212,15 +212,45 @@ export const indentCommandHandler: CommandHandler = ({ element, keyEvent, option
 
     const currentLine = cursor.getLine();
     const listMatch = ANY_BLANK_SEQUENCE_RE.exec(currentLine);
-    const indent = " ".repeat(INDENT_SPACE_SIZE + cursor.getIndentSize());
-    if (options.useListTabulation && listMatch) {
+    const indent = " ".repeat(INDENT_SPACE_SIZE);
+    const { lineSelectionStart, lineSelectionEnd } = cursor.getCurrentPosition();
+
+    if (options.useListTabulation && listMatch && cursor.getIndentSize() === 0 && !/^>(\s)*/.test(currentLine)) {
         const [, , prefix] = listMatch;
-        const newPrefix = !isNaN(parseFloat(prefix)) && prefix.split(".").length <= 2 ? prefix + "1." : prefix;
+        const newPrefix =
+            !isNaN(parseFloat(prefix)) && prefix.split(".").length <= 2 ? clamp(parseInt(prefix) - 1, 1, Infinity) + ".1." : prefix;
         cursor.spliceContent(Cursor.raw`${indent}${newPrefix} ${Cursor.$}`, { replaceCount: 1 });
         return;
     }
 
-    cursor.spliceContent(Cursor.raw`${currentLine}${indent}${Cursor.$}`, { replaceCount: 1 });
+    const raw = Cursor.raw`${currentLine.slice(0, lineSelectionStart)}${indent}${Cursor.$}${currentLine.slice(lineSelectionEnd)}`;
+    cursor.spliceContent(raw, { replaceCount: 1 });
+};
+
+export const unindentCommandHandler: CommandHandler = ({ element, keyEvent, options }) => {
+    const cursor = new Cursor(element);
+
+    keyEvent?.preventDefault();
+
+    const currentLine = cursor.getLine();
+    const tabulatedOrderedListRe = /^\s+(\d\.\d\.).*$/;
+
+    let resultLine = currentLine.slice(clamp(INDENT_SPACE_SIZE, 0, cursor.getIndentSize()));
+
+    if (options.useListTabulation && tabulatedOrderedListRe.test(currentLine)) {
+        const [, prefix] = currentLine.match(tabulatedOrderedListRe) ?? [];
+        const newPrefix =
+            prefix
+                .split(".")
+                .slice(0, -1)
+                .map((x) => String(parseInt(x) + 1))
+                .slice(0, -1)
+                .join(".") + ".";
+
+        resultLine = resultLine.replace(prefix, newPrefix);
+    }
+
+    cursor.spliceContent(Cursor.raw`${resultLine}${Cursor.$}`, { replaceCount: 1 });
 };
 
 export const linkPasteCommandHandler = async (ctx: CommandHandlerContext) => {
@@ -251,7 +281,7 @@ export const linkPasteCommandHandler = async (ctx: CommandHandlerContext) => {
     const before = currentLine.slice(0, position.lineSelectionStart);
     const after = currentLine.slice(position.lineSelectionEnd);
     const isImage = ANY_IMAGE_URL_RE.test(pastedValue);
-    const raw = Cursor.raw`${before}${isImage ? "!" : ""}[${Cursor.$}${selected}${Cursor.$}](${pastedValue})$${after}`;
+    const raw = Cursor.raw`${before}${isImage ? "!" : ""}[${Cursor.$}${selected}${Cursor.$}](${pastedValue})${after}`;
 
     cursor.spliceContent(raw, { replaceCount: 1 });
 };
@@ -287,10 +317,7 @@ export const codeBlockCommandHandler: CommandHandler = (ctx) => {
 export const codeSelectedCommandHandler: CommandHandler = (ctx) => {
     const cursor = new Cursor(ctx.element);
     const selected = cursor.getSelected();
-    if (selected === "") {
-        codeInlineCommandHandler(ctx);
-        return;
-    }
+
     if (selected.includes("\n")) {
         codeBlockCommandHandler(ctx);
     } else {

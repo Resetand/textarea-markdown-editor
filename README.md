@@ -7,7 +7,7 @@
 
 **Textarea Markdown** is a simple markdown editor using only `<textarea/>`. It extends textarea by adding formatting features like shortcuts, invoked commands, and other to make user experience better 🙃
 
-Essentially this library - just provide textarea Component. You can choose any engine for markdown rendering, any layout. Can use any existing textarea Component and style it as you prefer
+Essentially this library just provide textarea Component. You can choose any markdown parser, any layout. Can use any existing textarea Component and style it as you prefer
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/Resetand/textarea-markdown-editor/master/img/overview.gif" />
@@ -23,6 +23,10 @@ Essentially this library - just provide textarea Component. You can choose any e
 ## Installation and usage
 
 ### Quick Start ⚡️
+
+```bash
+$ npm install textarea-markdown-editor
+```
 
 ```typescript
 import React, { Fragment, useRef, useState } from "react";
@@ -123,7 +127,8 @@ function App() {
 | **italic**         | Insert or wrap italic markup                                     | `ctrl/command+i`       |
 | **strike-through** | Insert or wrap strike-through markup                             | `ctrl/command+shift+x` |
 | **next-line**      | Wrapping sequence `meta`                                         | `enter`                |
-| **indent**         | Insert intent on tab                                             | `tab`                  |
+| **indent**         | Insert tabulation intent on tab                                  | `tab`                  |
+| **unindent**       | Remove line tabulation intent                                    | `shift+tab`            |
 | **link-paste**     | Wrap pasted links in markup if text selected `meta`              | `ctrl/command+v`       |
 | **link**           | Insert link markup                                               |                        |
 | **image**          | Insert image markup                                              |                        |
@@ -140,7 +145,7 @@ function App() {
 | **h5**             | Insert h5 headline                                               |                        |
 | **h6**             | Insert h6 headline                                               |                        |
 
-ℹ️ Do not need to trigger meta commands
+ℹ️ Do not need to trigger `meta` commands
 
 ---
 
@@ -242,7 +247,7 @@ export type CommandHandlerContext = {
 };
 ```
 
-👀 You can find more examples [here](https://github.com/Resetand/textarea-markdown-editor/blob/master/src/lib/handlers.ts#L62)
+👀 You can find more examples [here](https://github.com/Resetand/textarea-markdown-editor/blob/master/src/lib/handlers.ts#L91)
 
 ℹ️ Note that mutation `element.value` will not trigger `change` event on textarea element. Use `cursor.setValue(...)`
 or just return new content from handler.

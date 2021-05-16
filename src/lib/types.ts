@@ -20,6 +20,7 @@ export const WELL_KNOWN_COMMANDS = [
     "ordered-list",
     "next-line",
     "indent",
+    "unindent",
     "code-block",
     "code-inline",
     "code",
