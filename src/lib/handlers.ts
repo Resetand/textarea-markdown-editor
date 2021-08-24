@@ -113,8 +113,8 @@ export const linkCommandHandler: CommandHandler = (ctx) => {
 
     // Now we can build text for current line. in this tagged bellow template just a
     // bunch of concatenated strings except "Cursor.$" - it is a special marker for
-    // showing selection range declarative, in this case we want to select the "linkText"
-    const raw = Cursor.raw`${before}[${Cursor.$}${linkText}${Cursor.$}](${urlPlaceholder})${after}`;
+    // showing selection range declarative, in this case we want to select the "urlPlaceholder"
+    const raw = Cursor.raw`${before}[${linkText}](${Cursor.$}${urlPlaceholder}${Cursor.$})${after}`;
 
     // Finally we can make "spliceContent" - this function receive "raw" result and
     // options object, where you can specify start lineNumber and how many lines
