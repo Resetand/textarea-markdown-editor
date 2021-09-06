@@ -15,12 +15,13 @@ import {
     isRefObject,
 } from "./types";
 import Mousetrap, { MousetrapInstance, MousetrapStatic } from "mousetrap";
-import React, { Fragment, MutableRefObject, RefObject, forwardRef, useCallback, useEffect, useMemo, useRef } from "react";
+import React, { Fragment, MutableRefObject, RefObject, forwardRef, useCallback, useEffect, useMemo, useRef, ReactElement } from "react";
 
 import { findLastIndex } from "./utils";
 import { wellKnownCommands } from "./commands";
 
-const CHILDREN_ERROR_MSG = "TextareaMarkdown: child element must be instance of HTMLTextAreaElement";
+const CHILDREN_ERROR_MSG =
+    "TextareaMarkdown wrapper: child element must be instance of HTMLTextAreaElement or container with an textarea element";
 
 export const TextareaMarkdown = forwardRef<TextareaMarkdownRef, TextareaMarkdownProps>((props, ref) => {
     const { commands: userCommands, options: userOptions, ...textareaProps } = props;
@@ -35,40 +36,54 @@ export const TextareaMarkdown = forwardRef<TextareaMarkdownRef, TextareaMarkdown
     return <textarea ref={textareaNodeRef} {...textareaProps} />;
 }) as TextareaMarkdownComponent;
 
-TextareaMarkdown.Wrapper = forwardRef<TextareaMarkdownRef, TextareaMarkdownProps>((props, ref) => {
-    const { children } = props;
-    const textareaNodeRef = useRef<HTMLTextAreaElement>();
-    const domHolderElementRef = useRef<HTMLDivElement>(null);
+TextareaMarkdown.Wrapper = forwardRef<TextareaMarkdownRef, Omit<TextareaMarkdownProps, "children"> & { children: ReactElement }>(
+    (props, ref) => {
+        const { children } = props;
+        const textareaNodeRef = useRef<HTMLTextAreaElement>();
+        const domHolderElementRef = useRef<HTMLDivElement | null>(null);
 
-    useEffect(() => {
-        if (React.Children.count(children) !== 1) {
-            throw new TypeError(CHILDREN_ERROR_MSG);
-        }
-
-        if (children && domHolderElementRef.current && !textareaNodeRef.current) {
-            const node = domHolderElementRef.current.previousSibling;
-            if (node instanceof HTMLTextAreaElement) {
-                textareaNodeRef.current = node;
-            } else {
-                throw new TypeError(CHILDREN_ERROR_MSG);
+        useEffect(() => {
+            if (!textareaNodeRef.current && domHolderElementRef.current) {
+                if (React.Children.count(children) !== 1) {
+                    throw new TypeError(CHILDREN_ERROR_MSG);
+                }
+                textareaNodeRef.current = findTextArea(domHolderElementRef.current.previousElementSibling);
             }
-            domHolderElementRef.current.remove();
-        }
-    }, [children]);
+        }, [children]);
 
-    useBootstrap({
-        props,
-        ref,
-        textareaRef: textareaNodeRef,
-    });
+        useBootstrap({
+            props,
+            ref,
+            textareaRef: textareaNodeRef,
+        });
 
-    return (
-        <Fragment>
-            {children}
-            <div style={{ display: "none" }} ref={domHolderElementRef} />
-        </Fragment>
-    );
-});
+        return (
+            <Fragment>
+                {children}
+                <div style={{ display: "none" }} ref={domHolderElementRef} />
+            </Fragment>
+        );
+    }
+);
+
+/** Will try to find textarea in a prevSibling node or throws an Error  */
+const findTextArea = (prevSibling: Element | null) => {
+    if (!prevSibling) {
+        throw new TypeError(CHILDREN_ERROR_MSG);
+    }
+
+    if (prevSibling instanceof HTMLTextAreaElement) {
+        return prevSibling;
+    }
+
+    const queried = prevSibling.querySelector("textarea");
+
+    if (queried instanceof HTMLTextAreaElement) {
+        return queried;
+    }
+
+    throw new TypeError(CHILDREN_ERROR_MSG);
+};
 
 type UseBootstrapOptions = {
     props: TextareaMarkdownConfig;

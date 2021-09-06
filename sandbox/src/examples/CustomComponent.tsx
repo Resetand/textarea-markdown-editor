@@ -8,7 +8,9 @@ function App() {
 
     return (
         <TextareaMarkdown.Wrapper ref={ref}>
-            <TextareaAutosize value={value} onChange={(e) => setValue(e.target.value)} />
+            <div>
+                <TextareaAutosize value={value} onChange={(e) => setValue(e.target.value)} />
+            </div>
         </TextareaMarkdown.Wrapper>
     );
 }
