@@ -47,7 +47,8 @@
   "scripts": {
     "build": "tsc",
     "test": "npx jest --env=jsdom-sixteen",
-    "prepublish": "npm run test -- --watchAll=false && npm run build"
+    "prepublish": "npm run test -- --watchAll=false && npm run build",
+    "start-sandbox": "npm run build; npm link textarea-markdown-editor; npm link sandbox/node_modules/react; npm --prefix sandbox run start"
   },
   "eslintConfig": {
     "extends": [

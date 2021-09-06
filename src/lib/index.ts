@@ -5,7 +5,7 @@ export type {
     CommandHandlerContext,
     CommandTrigger,
     CommandType,
-    TextareaMarkdownProps as TextareaMarkdownProps,
+    TextareaMarkdownProps,
     TextareaMarkdownOptions,
     CommandConfig,
     CommandDefine,

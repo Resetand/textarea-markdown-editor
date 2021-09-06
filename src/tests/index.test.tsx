@@ -3,7 +3,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
 import TextareaMarkdown, { TextareaMarkdownRef } from "../lib";
-import React, { FC, useEffect, useRef, useState } from "react";
+import React, { FC, ReactElement, useEffect, useRef, useState } from "react";
 import { fireEvent, render } from "@testing-library/react";
 
 import { CommandType } from "../lib/types";
@@ -323,8 +323,8 @@ describe("md formatting common cases", () => {
                 return <TextareaMarkdown ref={ref} value={value} onChange={(e) => setValue(e.target.value)} />;
             };
 
-            const component = render(<Example />);
-            const textArea = component.container.querySelector("textarea")!;
+            const rendered = render(<Example />);
+            const textArea = rendered.container.querySelector("textarea")!;
             c.act?.(textArea);
 
             // const selectionStart = c.expected.split("").findIndex((x) => x === "<");
@@ -336,5 +336,45 @@ describe("md formatting common cases", () => {
 
             c.after?.();
         });
+    });
+});
+
+describe("TextareaMarkdown component usage", () => {
+    test("should render textarea", () => {
+        const rendered = render(<TextareaMarkdown />);
+        expect(rendered.container.firstElementChild).toBeInstanceOf(HTMLTextAreaElement);
+    });
+
+    test("should throw an error if using invalid children with TextareaMarkdown.Wrapper", () => {
+        const invalidChildren: any[] = [
+            null,
+            "some string",
+            <input />,
+            <span>here</span>,
+            <div>
+                <div></div>
+            </div>,
+        ];
+        for (const invalidChild of invalidChildren) {
+            expect(() => render(<TextareaMarkdown.Wrapper>{invalidChild}</TextareaMarkdown.Wrapper>)).toThrow(TypeError);
+        }
+    });
+
+    test("should use child textarea if using valid children with TextareaMarkdown.Wrapper", () => {
+        const validChildren = [
+            <textarea />,
+            <div>
+                <textarea />
+            </div>,
+            <div>
+                <div>some text</div>
+                <textarea />
+            </div>,
+        ];
+
+        for (const validChild of validChildren) {
+            const rendered = render(<TextareaMarkdown.Wrapper>{validChild}</TextareaMarkdown.Wrapper>);
+            expect(rendered.container.querySelector("textarea")).toBeInstanceOf(HTMLTextAreaElement);
+        }
     });
 });
