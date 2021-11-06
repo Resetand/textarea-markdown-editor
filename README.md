@@ -249,5 +249,5 @@ export type CommandHandlerContext = {
 
 👀 You can find more examples [here](https://github.com/Resetand/textarea-markdown-editor/blob/master/src/lib/handlers.ts#L91)
 
-ℹ️ Note that mutation `element.value` will not trigger `change` event on textarea element. Use `cursor.setValue(...)`
+ℹ️ Note that mutation `element.value` will not trigger `change` event on textarea element. Use `cursor.setText(...)`
 or just return new content from handler.

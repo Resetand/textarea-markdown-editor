@@ -6,7 +6,7 @@
         "esModuleInterop": true,
         "allowSyntheticDefaultImports": true,
         "strict": true,
-        "module": "esnext",
+        "module": "CommonJS",
         "moduleResolution": "node",
         "jsx": "react",
         "outDir": "dist",
