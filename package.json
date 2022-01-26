@@ -1,6 +1,6 @@
 {
   "name": "textarea-markdown-editor",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "description": "UI headless React markdown editor using only textarea",
   "homepage": "https://github.com/Resetand/markdown-textarea",
   "author": "Resetand",
