@@ -1,15 +1,10 @@
 import React, { Fragment, useRef, useState } from "react";
 import TextareaMarkdown, { TextareaMarkdownRef, Cursor, CommandHandler } from "textarea-markdown-editor";
 
-/** Inserts 🙃 at the end of the line and select it */
-const emojiCommandHandler: CommandHandler = ({ element }) => {
-    const cursor = new Cursor(element);
-    const currentLine = cursor.getLine();
-
-    // Cursor.$ - marker means cursor position, if specified two markers indicate a selection range
-    cursor.spliceContent(Cursor.raw`${currentLine} ${Cursor.$}🙃${Cursor.$}`, {
-        replaceCount: 1, // replace current line
-    });
+/** Inserts 🙃 at the current position and select it */
+const emojiCommandHandler: CommandHandler = ({ cursor }) => {
+    // Cursor - marker means a cursor position, or a selection range if specified two markers
+    cursor.insert(`${Cursor.MARKER}🙃${Cursor.MARKER}`);
 };
 
 function App() {

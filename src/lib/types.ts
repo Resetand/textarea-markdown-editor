@@ -1,4 +1,5 @@
-import React, { ComponentPropsWithoutRef, ForwardRefExoticComponent, ReactElement, RefAttributes, RefObject } from "react";
+import React, { ComponentPropsWithoutRef, ForwardRefExoticComponent, ReactElement, RefAttributes } from "react";
+import { Cursor } from "./Cursor.new";
 
 /** https://github.com/Microsoft/TypeScript/issues/29729 */
 export type LiteralUnion<T extends U, U = string> = T | (Pick<U, never> & { _?: never });
@@ -6,7 +7,7 @@ export type LiteralUnion<T extends U, U = string> = T | (Pick<U, never> & { _?: 
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
-export const WELL_KNOWN_COMMANDS = [
+export const BUILD_IN_COMMANDS = [
     "bold",
     "italic",
     "strike-through",
@@ -18,27 +19,25 @@ export const WELL_KNOWN_COMMANDS = [
     "h6",
     "unordered-list",
     "ordered-list",
-    "next-line",
-    "indent",
-    "unindent",
     "code-block",
     "code-inline",
     "code",
     "link",
     "image",
-    "link-paste",
     "block-quotes",
 ] as const;
 
-export type CommandType = LiteralUnion<typeof WELL_KNOWN_COMMANDS[number], string>;
+export type CommandType = LiteralUnion<typeof BUILD_IN_COMMANDS[number], string>;
 
 export type CommandHandlerContext = {
-    element: HTMLTextAreaElement;
+    textarea: HTMLTextAreaElement;
+    cursor: Cursor;
     keyEvent?: KeyboardEvent;
+    clipboardEvent?: ClipboardEvent;
     options: TextareaMarkdownOptions;
 };
 
-export type CommandHandler = (context: CommandHandlerContext) => void | Promise<void> | Promise<string> | string;
+export type CommandHandler = (context: CommandHandlerContext) => void | Promise<void>;
 
 export type CommandConfig<TType extends CommandType = CommandType> = {
     handler: CommandHandler;
@@ -49,10 +48,15 @@ export type CommandConfig<TType extends CommandType = CommandType> = {
 };
 
 export type TextareaMarkdownOptions = {
-    useListTabulation: boolean;
-    unorderedListSyntax: "-" | "*";
-    boldSyntax: "**" | "__";
-    italicSyntax: "*" | "_";
+    preferredUnorderedListSyntax: "-" | "*" | "+";
+    preferredBoldSyntax: "**" | "__";
+    preferredItalicSyntax: "*" | "_";
+
+    enableIntentExtension: boolean;
+    enableProperLineRemoveBehaviorExtension: boolean;
+    enableLinkPasteExtension: boolean;
+    enableListWrappingExtension: boolean;
+
     boldPlaceholder: string;
     italicPlaceholder: string;
     strikeThroughPlaceholder: string;
@@ -62,13 +66,16 @@ export type TextareaMarkdownOptions = {
     unorderedListPlaceholder: string;
     headlinePlaceholder: string | ((level: number) => string);
     blockQuotesPlaceholder: string;
+    linkTextPlaceholder: string;
+    linkUrlPlaceholder?: string;
+    imageTextPlaceholder: string;
+    imageUrlPlaceholder: string;
 };
 
 export const defaultTextareaMarkdownOptions: TextareaMarkdownOptions = {
-    useListTabulation: true,
-    unorderedListSyntax: "-",
-    boldSyntax: "**",
-    italicSyntax: "*",
+    preferredUnorderedListSyntax: "-",
+    preferredBoldSyntax: "**",
+    preferredItalicSyntax: "*",
     boldPlaceholder: "bold",
     italicPlaceholder: "italic",
     strikeThroughPlaceholder: "strike through",
@@ -78,22 +85,26 @@ export const defaultTextareaMarkdownOptions: TextareaMarkdownOptions = {
     unorderedListPlaceholder: "unordered list",
     headlinePlaceholder: (lvl) => `headline ${lvl}`,
     blockQuotesPlaceholder: "quote",
+    linkTextPlaceholder: "example",
+    linkUrlPlaceholder: "url",
+    imageTextPlaceholder: "example",
+    imageUrlPlaceholder: "image.png",
+
+    enableIntentExtension: true,
+    enableLinkPasteExtension: true,
+    enableListWrappingExtension: true,
+    enableProperLineRemoveBehaviorExtension: true,
 };
 
-export type CommandTrigger = (command: CommandType) => void | string;
-export type CommandTriggerInternal = (
-    command: CommandType,
-    options: { __internal: { element: HTMLTextAreaElement | null | undefined; keyEvent?: KeyboardEvent } }
-) => Promise<any> | any;
-export type CommandDefine = PartialBy<CommandConfig, "handler">;
+export type CommandTrigger = (command: CommandType, keyEvent?: KeyboardEvent) => void;
+
+export type Command = PartialBy<CommandConfig, "handler">;
+
+export type Extension = (textarea: HTMLTextAreaElement) => void | (() => void);
 
 export type TextareaMarkdownConfig = {
-    commands?: CommandDefine[];
+    commands?: Command[];
     options?: Partial<TextareaMarkdownOptions>;
-};
-
-export const isRefObject = <TAttributes extends any>(ref: React.Ref<TAttributes>): ref is RefObject<TAttributes> => {
-    return ref !== null && typeof ref === "object";
 };
 
 export type TextareaMarkdownRef = HTMLTextAreaElement & {

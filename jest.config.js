@@ -1,5 +1,5 @@
 module.exports = {
     preset: "ts-jest",
-    testEnvironment: "jsdom-sixteen",
+    testEnvironment: "jest-environment-jsdom",
     verbose: true,
 };

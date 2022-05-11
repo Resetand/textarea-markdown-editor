@@ -1,4 +1,4 @@
-export { WELL_KNOWN_COMMANDS } from "./types";
+export { BUILD_IN_COMMANDS as WELL_KNOWN_COMMANDS } from "./types";
 export type {
     TextareaMarkdownRef,
     CommandHandler,
@@ -8,9 +8,9 @@ export type {
     TextareaMarkdownProps,
     TextareaMarkdownOptions,
     CommandConfig,
-    CommandDefine,
+    Command as CommandDefine,
     TextareaMarkdownConfig,
 } from "./types";
-export { Cursor } from "./Cursor";
 
+export { Cursor } from "./Cursor.new";
 export { TextareaMarkdown as default } from "./TextareaMarkdown";

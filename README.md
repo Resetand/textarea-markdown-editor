@@ -7,7 +7,7 @@
 
 **Textarea Markdown** is a simple markdown editor using only `<textarea/>`. It extends textarea by adding formatting features like shortcuts, invoked commands, and other to make user experience better 🙃
 
-Essentially this library just provide textarea Component. You can choose any markdown parser, any layout. Can use any existing textarea Component and style it as you prefer
+Essentially this library just provide textarea Component. You can choose any markdown parser, any layout. Can use any existing textarea Component and style it as you preferred
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/Resetand/textarea-markdown-editor/master/img/overview.gif" />
@@ -151,20 +151,20 @@ function App() {
 
 #### `TextareaMarkdownOptions`
 
-| Property                     | Description                                   | Type               | Default                      |
-| ---------------------------- | --------------------------------------------- | ------------------ | ---------------------------- |
-| **useListTabulation**        | Toggle tabulation lists prefix within content | boolean            | `true`                       |
-| **unorderedListSyntax**      | Unordered list prefix syntax                  | string             | `-`                          |
-| **boldSyntax**               | Bold wrapper syntax                           | string             | `**`                         |
-| **italicSyntax**             | Italic wrapper syntax                         | string             | `*`                          |
-| **boldPlaceholder**          |                                               | string             | `bold`                       |
-| **italicPlaceholder**        |                                               | string             | `italic`                     |
-| **strikeThroughPlaceholder** |                                               | string             | `strike through`             |
-| **codeInlinePlaceholder**    |                                               | string             | `code`                       |
-| **codeBlockPlaceholder**     |                                               | string             | `code block`                 |
-| **unorderedListPlaceholder** |                                               | string             | `ordered list`               |
-| **headlinePlaceholder**      |                                               | string \| Function | `(lvl) => 'headline ' + lvl` |
-| **blockQuotesPlaceholder**   |                                               | string             | `quote`                      |
+| Property                         | Description                                   | Type               | Default                      |
+| -------------------------------- | --------------------------------------------- | ------------------ | ---------------------------- |
+| **useListTabulation**            | Toggle tabulation lists prefix within content | boolean            | `true`                       |
+| **preferredUnorderedListSyntax** | Unordered list prefix syntax                  | string             | `-`                          |
+| **preferredBoldSyntax**          | Bold wrapper syntax                           | string             | `**`                         |
+| **preferredItalicSyntax**        | Italic wrapper syntax                         | string             | `*`                          |
+| **boldPlaceholder**              |                                               | string             | `bold`                       |
+| **italicPlaceholder**            |                                               | string             | `italic`                     |
+| **strikeThroughPlaceholder**     |                                               | string             | `strike through`             |
+| **codeInlinePlaceholder**        |                                               | string             | `code`                       |
+| **codeBlockPlaceholder**         |                                               | string             | `code block`                 |
+| **unorderedListPlaceholder**     |                                               | string             | `ordered list`               |
+| **headlinePlaceholder**          |                                               | string \| Function | `(lvl) => 'headline ' + lvl` |
+| **blockQuotesPlaceholder**       |                                               | string             | `quote`                      |
 
 ---
 

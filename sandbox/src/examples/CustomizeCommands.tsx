@@ -16,10 +16,6 @@ function App() {
                     shortcut: ["command+/", "ctrl+/"],
                     shortcutPreventDefault: true,
                 },
-                {
-                    name: "indent",
-                    enable: false,
-                },
             ]}
         />
     );

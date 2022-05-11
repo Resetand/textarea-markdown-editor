@@ -1,21 +1,16 @@
-/* eslint-disable jest/valid-title */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-/* eslint-disable react-hooks/exhaustive-deps */
-
+import React, { FC, useEffect, useRef, useState } from "react";
 import TextareaMarkdown, { TextareaMarkdownRef } from "../lib";
-import React, { FC, ReactElement, useEffect, useRef, useState } from "react";
-import { fireEvent, render } from "@testing-library/react";
+import { act, render } from "@testing-library/react";
 
 import { CommandType } from "../lib/types";
 import { stripIndent } from "common-tags";
+import userEvent from "@testing-library/user-event";
 
 type TestCase = {
     description: string;
     commandName?: CommandType;
     input: string;
     expected: string;
-    before?: () => void;
-    after?: () => void;
     act?: (element: HTMLTextAreaElement) => void;
     only?: boolean;
     skip?: boolean;
@@ -24,17 +19,19 @@ type TestCase = {
 afterEach(() => jest.resetAllMocks());
 
 /**
- *  < - selectionStart
- *  > - selectionEnd
+ *  `<` - selectionStart
+ *  `>` - selectionEnd
+ *  @note It required to use both `<` and `>` to indicate cursor selection/position
+ *  @note Use &lt and &gt to escape `<` and `>`
  */
 const testCases: TestCase[] = [
+    // ! bold
     {
         description: "should insert bold markup",
         commandName: "bold",
         input: "<>",
         expected: "**<bold>**",
     },
-
     {
         description: "should apply bold formatting for selection",
         commandName: "bold",
@@ -42,230 +39,107 @@ const testCases: TestCase[] = [
         expected: "**<some>** string",
     },
     {
-        description: "should unwrap bold selected if already wrapped",
-        commandName: "bold",
-        input: "**<some>** string",
-        expected: "<some> string",
-    },
-    {
-        description: "should work with multiply lines",
-        commandName: "bold",
-        input: stripIndent`
-            some information
-            some <important> information
-        `,
-        expected: stripIndent`
-            some information
-            some **<important>** information
-        `,
-    },
-    {
-        description: "should wrap bold only single lin",
+        description: "should apply bold formatting for multiply line selection",
         commandName: "bold",
         input: stripIndent`
             <some information
             some important information>
         `,
         expected: stripIndent`
-            **<some information>**
-            some important information
+            **<some information
+            some important information>**
         `,
     },
-
     {
-        skip: true,
-        description: "should wrap unordered-list",
-        input: stripIndent`
-            - option 1
-            - option 2
-            - option 3<>`,
-
-        expected: stripIndent`
-            - option 1
-            - option 2
-            - option 3
-            - <>`,
-    },
-    {
-        skip: true,
-        description: "should wrap ordered-list and increase order",
-        act: (el) => fireEvent.keyPress(el, { key: "Enter", code: 13, charCode: 13 }),
-        input: stripIndent`
-            1. option 1
-            2. option 2
-            3. option 3<>`,
-
-        expected: stripIndent`
-            1. option 1
-            2. option 2
-            3. option 3
-            4. <>`,
+        description: "should unwrap bold selected if already wrapped",
+        commandName: "bold",
+        input: "**<some>** string",
+        expected: "<some> string",
     },
 
+    // ! italic
     {
-        description: "should apply tabulation",
-        commandName: "indent",
-        input: `some<>`,
-        expected: `some    <>`,
+        description: "should apply italic formatting for selection",
+        commandName: "italic",
+        input: "<some> string",
+        expected: "*<some>* string",
     },
-    {
-        description: "should apply tabulation inside line",
-        commandName: "indent",
-        input: `some<> content`,
-        expected: `some    <> content`,
-    },
-    {
-        description: "should apply tabulation inside line with selection replace",
-        commandName: "indent",
-        input: `some <selected> content`,
-        expected: `some     <> content`,
-    },
-    {
-        description: "should unindent",
-        commandName: "unindent",
-        input: `    some content<>`,
-        expected: `some content<>`,
-    },
-    {
-        description: "should unindent #2",
-        commandName: "unindent",
-        input: ` some <selected> content`,
-        expected: `some selected content<>`,
-    },
-    {
-        description: "should apply tabulation within list prefix",
-        commandName: "indent",
-        input: stripIndent`
-            - option 1
-            - option 2
-            - <>`,
 
-        expected: stripIndent`
-            - option 1
-            - option 2
-                - <>`,
+    // ! link
+    {
+        description: "should insert link markup",
+        commandName: "link",
+        input: `some text <>`,
+        expected: `some text [example](<url>)`,
     },
     {
-        description: "should tabulate ordered list",
-        commandName: "indent",
-        input: stripIndent`
-            1. option 1
-            2. option 2
-            3. <>`,
-
-        expected: stripIndent`
-            1. option 1
-            2. option 2
-                2.1. <>`,
+        description: "should apply link formatting for selection",
+        commandName: "link",
+        input: `<name>`,
+        expected: `[name](<url>)`,
     },
-    {
-        description: "should unindent ordered list",
-        commandName: "unindent",
-        input: stripIndent`
-            1. option 1
-            2. option 2
-                2.1. content<>`,
 
-        expected: stripIndent`
-            1. option 1
-            2. option 2
-            3. content<>`,
-    },
+    // ! image
     {
-        description: "should tabulate ordered list (case with already tabulated)",
-        commandName: "indent",
-
-        input: stripIndent`
-            1. option 1
-            2. option 2
-                2.1. <>`,
-        expected: stripIndent`
-            1. option 1
-            2. option 2
-                2.1.     <>`,
-    },
-    {
-        description: "should insert title prefix (h1)",
-        commandName: "h1",
-        input: stripIndent`
-            some content before
-            headline level 1<>
-            some content after`,
-
-        expected: stripIndent`
-            some content before
-            # headline level 1<>
-            some content after`,
-    },
-    {
-        description: "should insert title prefix (h6)",
-        commandName: "h6",
-        input: stripIndent`
-            some content before
-            headline level 6<>
-            some content after`,
-
-        expected: stripIndent`
-            some content before
-            ###### headline level 6<>
-            some content after`,
-    },
-    {
-        description: "should replace title prefix on demand (h1 -> h6)",
-        commandName: "h6",
-        input: stripIndent`
-            some content before
-            # headline<>
-            some content after`,
-
-        expected: stripIndent`
-            some content before
-            ###### headline<>
-            some content after`,
+        description: "should insert image markup",
+        commandName: "image",
+        input: `some text <>`,
+        expected: `some text ![example](<image.png>)`,
     },
 
     {
-        description: "should replace title prefix on demand (h6 -> h1)",
-        commandName: "h1",
-        input: `###### some title<>`,
-        expected: `# some title<>`,
+        description: "should apply image formatting for selection",
+        commandName: "image",
+        input: `<image-name>`,
+        expected: `![image-name](<image.png>)`,
     },
+
+    // ! ordered-list
     {
-        description: "should unprefix headline",
-        commandName: "h1",
-        input: `# some title<>`,
-        expected: `some title<>`,
-    },
-    {
-        description: "should insert ordered list",
+        description: "should insert ordered list markup",
         commandName: "ordered-list",
         input: `some item<>`,
         expected: `1. some item<>`,
     },
     {
-        description: "should unprefix ordered list",
+        description: "should unprefix ordered list markup",
         commandName: "ordered-list",
         input: `1. some item<>`,
         expected: `some item<>`,
     },
+
     {
-        description: "should insert link markup",
-        commandName: "link",
-        input: `some text <>`,
-        expected: `some text [<example>](url)`,
+        description: "should apply ordered list formatting for selected lines",
+        commandName: "ordered-list",
+        input: stripIndent`
+            o<ne
+            two
+            tree>
+        `,
+        expected: stripIndent`
+            <1. one
+            2. two
+            3. tree>  
+        `,
     },
+
+    // ! unordered-list
     {
-        description: "should insert image markup",
-        commandName: "image",
-        input: `some text <>`,
-        expected: `some text ![image](<image.png>)`,
+        description: "should insert unordered list markup",
+        commandName: "unordered-list",
+        input: `some item<>`,
+        expected: `- some item<>`,
     },
+
+    // ! code-inline
     {
         description: "should wrap inline code block",
         commandName: "code-inline",
         input: stripIndent`<print('hello, world')>`,
         expected: stripIndent`\`<print('hello, world')>\``,
     },
+
+    // ! code-block
     {
         description: "should wrap code block",
         commandName: "code-block",
@@ -297,44 +171,294 @@ const testCases: TestCase[] = [
                 print('hello, world')
                 return 'multiline'>`,
     },
+
+    // ! code
+    {
+        description: "should wrap inline code block because of single line",
+        commandName: "code",
+        input: stripIndent`<print('hello, world')>`,
+        expected: stripIndent`\`<print('hello, world')>\``,
+    },
+    {
+        description: "should auto wrap code block because of multiply lines",
+        commandName: "code",
+        input: stripIndent`
+            <def main():
+                print('hello, world')
+                return 'multiline'>`,
+
+        expected: stripIndent`
+            ${"```"}
+            <def main():
+                print('hello, world')
+                return 'multiline'>
+            ${"```"}`,
+    },
+
+    // ! block-quotes
+    {
+        description: "should insert block-quotes markup",
+        commandName: "block-quotes",
+        input: "<>",
+        expected: "&gt <quote>",
+    },
+    {
+        description: "should apply block-quotes formatting for selection",
+        commandName: "block-quotes",
+        input: stripIndent`
+            Lorem <ipsum dolor sit amet consectetur adipisicing elit. 
+            Qui ab sed sunt voluptate?
+            >
+        `,
+        expected: stripIndent`
+            &gt <Lorem ipsum dolor sit amet consectetur adipisicing elit. 
+            Qui ab sed sunt voluptate?
+            >
+        `,
+    },
+
+    // ! strike-through
+    {
+        description: "should apply strike-through formatting for selection",
+        commandName: "strike-through",
+        input: "<outdated> string",
+        expected: "~~<outdated>~~ string",
+    },
+
+    // ! headline
+    {
+        description: "should insert title prefix (h1)",
+        commandName: "h1",
+        input: stripIndent`
+            some content before
+            headline level 1<>
+            some content after`,
+
+        expected: stripIndent`
+            some content before
+            # <headline level 1>
+            some content after`,
+    },
+    {
+        description: "should insert title prefix (h6)",
+        commandName: "h6",
+        input: stripIndent`
+            some content before
+            headline level 6<>
+            some content after`,
+
+        expected: stripIndent`
+            some content before
+            ###### <headline level 6>
+            some content after`,
+    },
+    {
+        description: "should replace title prefix on demand (h1 -> h6)",
+        commandName: "h6",
+        input: stripIndent`
+            some content before
+            # headline<>
+            some content after`,
+
+        expected: stripIndent`
+            some content before
+            ###### <headline>
+            some content after`,
+    },
+
+    {
+        description: "should replace title prefix on demand (h6 -> h1)",
+        commandName: "h1",
+        input: `###### some title<>`,
+        expected: `# <some title>`,
+    },
+    {
+        description: "should unprefix headline",
+        commandName: "h1",
+        input: `# some title<>`,
+        expected: `<some title>`,
+    },
+
+    // ! Extension: list-wrapping
+    {
+        description: "should wrap unordered-list",
+        input: stripIndent`
+            - option 1
+            - option 2
+            - option 3<>`,
+
+        act: () => userEvent.keyboard("{enter}"),
+
+        expected: stripIndent`
+            - option 1
+            - option 2
+            - option 3
+            - <>`,
+    },
+    {
+        description: "should wrap ordered-list and increase order",
+        input: stripIndent`
+            1. option 1
+            2. option 2
+            3. option 3<>`,
+
+        act: () => userEvent.keyboard("{enter}"),
+
+        expected: stripIndent`
+            1. option 1
+            2. option 2
+            3. option 3
+            4. <>`,
+    },
+    {
+        description: "should remove prefix of this line before default behavior for empty list line",
+        input: stripIndent`
+            - option 1
+            - option 2
+            - <>`,
+
+        act: () => userEvent.keyboard("{enter}"),
+
+        expected: stripIndent`
+            - option 1
+            - option 2
+            
+            <>`,
+    },
+
+    // ! Extension: link/image paste
+    {
+        description: "should handle link paste event",
+        input: `<title>`,
+        act: () => userEvent.paste("https://example.com"),
+        expected: `[title](https://example.com) <>`,
+    },
+    {
+        description: "should prevent link paste handling if text is already inside link markup",
+        input: `[<title>](https://example.com)`,
+        act: () => userEvent.paste("https://example.com"),
+        expected: `[https://example.com<>](https://example.com)`,
+    },
+    {
+        description: "should prevent link paste handling if text is already inside link markup #2",
+        input: `[<title](https>://example.com)`,
+        act: () => userEvent.paste("https://example.com"),
+        expected: `[https://example.com<>://example.com)`,
+    },
+    {
+        description: "should handle image link paste event",
+        input: `<image>`,
+        act: () => userEvent.paste("https://example/image.png"),
+        expected: `![image](https://example/image.png) <>`,
+    },
+
+    // ! Extension: intent
+    // TODO: Mousetrap bind doesn't trigger on `userEvent.keyboard` | `fireEvent.keydown` | `Mousetrap.trigger`
+    // {
+    //     only: true,
+    //     description: "should apply tabulation",
+    //     input: `some<>`,
+    //     act: (el) => Mousetrap(el).trigger("tab"),
+    //     expected: `some    <>`,
+    // },
+    // {
+    //     description: "should apply tabulation inside line",
+    //     input: `some<> content`,
+    //     act: () => userEvent.keyboard("{tab}"),
+    //     expected: `some    <> content`,
+    // },
+    // {
+    //     description: "should intent whole line if something is selected",
+    //     input: `some <selected> content`,
+    //     act: () => userEvent.keyboard("{tab}"),
+    //     expected: `<    some selected content>`,
+    // },
+    // {
+    //     description: "should intent multiply lines if selected",
+    //     input: stripIndent`
+    //         li<ne1
+    //         line2
+    //         lin>e3
+    //         line4
+    //     `,
+    //     act: () => userEvent.tab(),
+    //     expected: stripIndent`
+    //         <    line1
+    //             line2
+    //             line3>
+    //         line4
+    //     `,
+    // },
+    // {
+    //     description: "should unindent",
+    //     commandName: "unindent",
+    //     input: `    some content<>`,
+    //     expected: `<some content>`,
+    // },
+    // {
+    //     description: "should unindent #2",
+    //     commandName: "unindent",
+    //     input: ` some <selected> content`,
+    //     expected: `<some selected content>`,
+    // },
+    // {
+    //     description: "should unindent multiply lines",
+    //     commandName: "unindent",
+    //     input: stripIndent`
+    //             line<1
+    //             line2
+    //             line3>
+    //         line4
+    //     `,
+    //     expected: stripIndent`
+    //         <line1
+    //         line2
+    //         line3>
+    //         line4
+    //     `,
+    // },
 ];
 
-// TODO: Fix tests selection
+const parseContent = (value: string) => {
+    const chars = value.replace(/&lt|&gt/g, " ").split("");
+    const text = value.replace(/(<|>)/g, "").replace(/&lt/g, "<").replace(/&gt/g, ">");
+    const selectionStart = chars.findIndex((x) => x === "<");
+    const selectionEnd = chars.findIndex((x) => x === ">") - 1;
+    return { text, selectionEnd, selectionStart };
+};
+
 describe("md formatting common cases", () => {
     testCases.forEach((c) => {
         const runner = c.only ? test.only : c.skip ? test.skip : test;
-        runner(c.description, () => {
-            c.before?.();
-            const prepare = (value: string) => value.replace(/(<|>)/g, "");
+        runner(c.description, async () => {
             const Example: FC = () => {
-                const [value, setValue] = useState(prepare(c.input));
+                const inputData = parseContent(c.input);
                 const ref = useRef<TextareaMarkdownRef>(null);
+                const [value, setValue] = useState(inputData.text);
 
                 useEffect(() => {
-                    if (!ref.current) return;
-                    const selectionStart = c.input.split("").findIndex((x) => x === "<");
-                    const selectionEnd = c.input.split("").findIndex((x) => x === ">") - 1;
-                    ref.current.setSelectionRange(selectionStart, selectionEnd);
+                    ref.current?.setSelectionRange(inputData.selectionStart, inputData.selectionEnd);
 
                     if (c.commandName) {
-                        ref.current.trigger?.(c.commandName);
+                        ref.current?.trigger?.(c.commandName);
                     }
                 }, []);
-                return <TextareaMarkdown ref={ref} value={value} onChange={(e) => setValue(e.target.value)} />;
+
+                return <TextareaMarkdown value={value} onChange={(e) => setValue(e.target.value)} ref={ref} />;
             };
 
             const rendered = render(<Example />);
-            const textArea = rendered.container.querySelector("textarea")!;
-            c.act?.(textArea);
+            const textarea = rendered.container.querySelector("textarea")!;
 
-            // const selectionStart = c.expected.split("").findIndex((x) => x === "<");
-            // const selectionEnd = c.expected.split("").findIndex((x) => x === ">") - 1;
+            textarea.focus();
 
-            expect(textArea.value).toBe(prepare(c.expected));
-            // expect(textArea.selectionStart).toBe(selectionStart);
-            // expect(textArea.selectionEnd).toBe(selectionEnd);
+            await act(() => c.act?.(textarea));
 
-            c.after?.();
+            const { selectionEnd, selectionStart, text } = parseContent(c.expected);
+
+            expect(textarea.value).toBe(text);
+            expect(textarea.selectionEnd).toBe(selectionEnd);
+            expect(textarea.selectionStart).toBe(selectionStart);
         });
     });
 });

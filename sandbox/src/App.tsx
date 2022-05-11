@@ -1,5 +1,6 @@
 import React, { Fragment } from "react";
 import Advanced from "./examples/Advanced";
+import ImageUpload from "./examples/ImageUpload";
 import CustomComponent from "./examples/CustomComponent";
 import CustomizeCommands from "./examples/CustomizeCommands";
 import QuickStart from "./examples/Basic";
@@ -19,6 +20,8 @@ function App() {
             <CustomComponent />
             <h2>Advanced</h2>
             <Advanced />
+            <h2>ImageUpload</h2>
+            <ImageUpload />
             <h2>CustomComponentNestedTextarea</h2>
             <CustomComponentNestedTextarea />
         </Fragment>
