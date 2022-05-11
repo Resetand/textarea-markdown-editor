@@ -10,6 +10,7 @@ function App() {
             ref={ref}
             value={value}
             onChange={(e) => setValue(e.target.value)}
+            options={{ enableIntentExtension: false }}
             commands={[
                 {
                     name: "code",
