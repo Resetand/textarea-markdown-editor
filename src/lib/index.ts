@@ -8,7 +8,7 @@ export type {
     TextareaMarkdownProps,
     TextareaMarkdownOptions,
     CommandConfig,
-    Command as CommandDefine,
+    Command,
     TextareaMarkdownConfig,
 } from "./types";
 

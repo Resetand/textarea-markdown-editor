@@ -4,10 +4,6 @@ export const metaCombination = (...keys: string[]): string[] => {
     return [`command+${keys.join("+")}`, `ctrl+${keys.join("+")}`];
 };
 
-export const arrayInsert = <T>(array: T[], position: number, value: T) => {
-    return [...array.slice(0, position), value, ...array.slice(position)];
-};
-
 export const clamp = (val: number, min: number, max: number) => Math.min(Math.max(min, val), max);
 
 export const findLast = <T>(array: Array<T>, predicate: (value: T, index: number, obj: T[]) => boolean): T | undefined => {
@@ -19,10 +15,7 @@ export const findLast = <T>(array: Array<T>, predicate: (value: T, index: number
 };
 
 export const trimChars = (text: string, chars: string) => {
-    if (chars === "]") chars = "\\]";
-    if (chars === "^") chars = "\\^";
-    if (chars === "\\") chars = "\\\\";
-    return text.replace(new RegExp("^[" + chars + "]+|[" + chars + "]+$", "g"), "");
+    return text.replace(new RegExp("^[" + escapeRegExp(chars) + "]+|[" + chars + "]+$", "g"), "");
 };
 
 export const isBtwOrEq = (value: number, a: number, b: number) => {
@@ -37,7 +30,7 @@ function canManipulateViaTextNodes(input: HTMLTextAreaElement | HTMLInputElement
     if (typeof browserSupportsTextareaTextNodes === "undefined") {
         const textarea: HTMLTextAreaElement = document.createElement("textarea");
         textarea.value = "1";
-        browserSupportsTextareaTextNodes = !!textarea.firstChild;
+        browserSupportsTextareaTextNodes = Boolean(textarea.firstChild);
     }
     return browserSupportsTextareaTextNodes;
 }
@@ -172,3 +165,7 @@ export const findTextArea = (element: Element | null) => {
 
     throw new TypeError(CHILDREN_ERROR_MSG);
 };
+
+export function escapeRegExp(str: string) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
+}

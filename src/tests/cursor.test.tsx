@@ -8,6 +8,7 @@ const createTextArea = (content: string | undefined) => {
     return el;
 };
 
+// TODO: add more tests
 describe("Cursor API", () => {
     test("should return info about lines in the textarea", () => {
         const ctn = "some content on the first line\nand the second line\n\nand here\n";

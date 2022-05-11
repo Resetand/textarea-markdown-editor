@@ -1,7 +1,7 @@
 import Mousetrap from "mousetrap";
 import { Cursor } from "./Cursor.new";
-import { Extension } from "./types";
-import { getIncrementedOrderedListPrefix, isBtwOrEq, metaCombination } from "./utils";
+import { Extension, WrappingConfig } from "./types";
+import { escapeRegExp, getIncrementedOrderedListPrefix, isBtwOrEq, metaCombination } from "./utils";
 
 /**
  * Handle the paste event, if the pasted text is a URL and something is selected, it will be converted to link/image markup.
@@ -94,51 +94,62 @@ export const intentExtension: Extension = (textarea) => {
 /**
  * Handle next-line event. Will wrap current list sequence if needed
  */
-export const listWrappingExtension: Extension = (textarea) => {
+export const listWrappingExtension: Extension = (textarea, options) => {
     const cursor = new Cursor(textarea);
+
+    const ensureRegExp = (value: RegExp | string) => (value instanceof RegExp ? value : new RegExp(escapeRegExp(value)));
+    const getLinePattern = (config: WrappingConfig) => new RegExp(`^\\s*(${ensureRegExp(config.pattern).source}).*$`);
+
+    const mapToWrappingConfig = (value: WrappingConfig | string): WrappingConfig =>
+        typeof value === "string" ? { markup: value, pattern: value } : value;
+
+    const customConfigs = options.customWrapping.map(mapToWrappingConfig);
+
+    const buildInConfigs: WrappingConfig[] = [
+        {
+            pattern: "- ",
+            markup: "- ",
+        },
+        {
+            pattern: /(\d+\.){1,2}\s+/,
+            markup: (line) => getIncrementedOrderedListPrefix(/^(\s*((\d+\.){1,2})\s+.*)$/.exec(line.text)?.[2] ?? "") + " ",
+        },
+    ];
+
+    const configs = [...customConfigs, ...buildInConfigs];
 
     const keydownListener = (event: KeyboardEvent) => {
         if (event.code !== "Enter") {
             return;
         }
 
-        // regexp checks all possible sequences, including lines with Indent cases
-        const ANY_SEQUENCE_LINE_RE = /^(\s*(\-|\+|\*|(\d+\.){1,2})\s+.*)$/;
-        const ANY_BLANK_SEQUENCE_LINE_RE = /^(\s*(\-|\+|\*|(\d+\.){1,2})\s+)$/;
-
         // this code bellow should be executed before default behavior.
-        // current line – is line on which the Enter was pressed
+        // entering line – is line on which the Enter was pressed
         const enteringLine = cursor.lineAt(cursor.position.line.lineNumber)!;
+        const config = configs.find((config) => getLinePattern(config).test(enteringLine.text));
 
-        const isListLine = ANY_SEQUENCE_LINE_RE.test(enteringLine.text);
-        const isBlankListLine = ANY_BLANK_SEQUENCE_LINE_RE.test(enteringLine.text);
-
-        if (!isListLine) {
-            // default behavior if it's not inside a sequence
+        if (!config) {
+            // no matches
             return;
         }
 
-        if (isBlankListLine) {
+        const pattern = ensureRegExp(config.pattern);
+
+        const isEmptySequenceLine = !enteringLine.text.replace(pattern, "").trim();
+
+        if (isEmptySequenceLine) {
             // for a list line without content remove prefix of this line before default behavior
             cursor.replaceLine(enteringLine.lineNumber, "");
             return;
         }
 
-        // Otherwise, we need to wrap a sequence
-        // This is a bit tricky with saving default behavior, and may lead to unexpected results
-        // We prevent default behavior and insert new-line within the prefix, it will close to the native behavior
-
         event?.preventDefault();
 
-        const prefix = ANY_SEQUENCE_LINE_RE.exec(enteringLine.text)?.[2] ?? "";
-        const isOrderedPrefix = /(\d+\.){1,2}/.test(prefix);
-
+        const prefix = config.markup instanceof Function ? config.markup(enteringLine) : config.markup;
         const contentAfterCursor = enteringLine.text.slice(textarea.selectionEnd);
-
-        const nextPrefix = isOrderedPrefix ? getIncrementedOrderedListPrefix(prefix) : prefix;
         const intent = " ".repeat(enteringLine.text.match(/^\s*/)?.[0].length ?? 0);
 
-        cursor.insert(`\n${intent}${nextPrefix} ${contentAfterCursor}${Cursor.MARKER}`);
+        cursor.insert(`\n${intent}${prefix}${contentAfterCursor.replace(pattern, "")}${Cursor.MARKER}`);
     };
 
     textarea.addEventListener("keydown", keydownListener);

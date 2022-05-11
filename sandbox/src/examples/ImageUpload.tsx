@@ -12,19 +12,20 @@ function App() {
         if (inputRef.current && mdRef.current) {
             const input = inputRef.current;
             const cursor = new Cursor(mdRef.current); // you are free to use Cursor util
+
             const handler = async () => {
-                Array.from(input.files ?? []).forEach(async (file, index) => {
+                Array.from(input.files ?? []).forEach(async (file) => {
                     if (cursor.position.line.text) {
                         cursor.insert("\n"); // wrap to next line if some line is not empty
                     }
-                    const loadingPlaceholder = `[uploading image (${index})...]\n`;
-                    cursor.insert(loadingPlaceholder);
+                    const loadingPlaceholder = `[uploading (${file.name})...]`;
+                    cursor.insert("\n" + loadingPlaceholder + "\n");
 
                     await sleep(2000); // place to send upload request to you API
-                    const resultUrl = URL.createObjectURL(file); // for academic purpose form URL from blob
+                    const resultUrl = URL.createObjectURL(file); // for academic purpose create URL from blob
 
                     cursor.setValue(
-                        cursor.value.replace(loadingPlaceholder, `![${Cursor.MARKER}${file.name}${Cursor.MARKER}](${resultUrl})\n`)
+                        cursor.value.replace(loadingPlaceholder, `![${Cursor.MARKER}${file.name}${Cursor.MARKER}](${resultUrl})`)
                     );
                 });
             };

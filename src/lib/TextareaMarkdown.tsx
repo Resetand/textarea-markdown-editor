@@ -33,7 +33,7 @@ const TextareaMarkdownWrapper = forwardRef<TextareaMarkdownRef, TextareaMarkdown
     useEffect(() => {
         if (!textareaRef.current && holderElementRef.current) {
             if (React.Children.count(children) !== 1) {
-                throw new TypeError("TextareaMarkdownWrapper: expected one react-element as a child");
+                throw new TypeError("TextareaMarkdownWrapper: expected single react-element as a child");
             }
             textareaRef.current = findTextArea(holderElementRef.current.previousElementSibling);
         }

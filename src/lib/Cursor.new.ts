@@ -57,7 +57,11 @@ const MARKER = `\u0000` as Marker;
  */
 export class Cursor {
     public static MARKER = MARKER;
-    public constructor(private element: HTMLTextAreaElement) {}
+    public MARKER: typeof MARKER;
+
+    public constructor(private element: HTMLTextAreaElement) {
+        this.MARKER = MARKER;
+    }
 
     public get value() {
         return this.element.value;

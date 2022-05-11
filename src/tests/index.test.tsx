@@ -1,8 +1,7 @@
 import React, { FC, useEffect, useRef, useState } from "react";
-import TextareaMarkdown, { TextareaMarkdownRef } from "../lib";
+import TextareaMarkdown, { Command, CommandType, TextareaMarkdownOptions, TextareaMarkdownRef } from "../lib";
 import { act, render } from "@testing-library/react";
 
-import { CommandType } from "../lib/types";
 import { stripIndent } from "common-tags";
 import userEvent from "@testing-library/user-event";
 
@@ -14,6 +13,8 @@ type TestCase = {
     act?: (element: HTMLTextAreaElement) => void;
     only?: boolean;
     skip?: boolean;
+    options?: Partial<TextareaMarkdownOptions>;
+    commands?: Command[];
 };
 
 afterEach(() => jest.resetAllMocks());
@@ -295,6 +296,41 @@ const testCases: TestCase[] = [
             - option 3
             - <>`,
     },
+
+    {
+        description: "should wrap unordered-list within content",
+        input: stripIndent`
+            - option 1
+            - option 2
+            - option 3 <>option 4`,
+
+        act: () => userEvent.keyboard("{enter}"),
+
+        expected: stripIndent`
+            - option 1
+            - option 2
+            - option 3 
+            - <>option 4`,
+    },
+
+    {
+        description: "should wrap unordered-list within intent",
+        input: stripIndent`
+            some content
+                - option 1
+                - option 2<>
+            `,
+
+        act: () => userEvent.keyboard("{enter}"),
+
+        expected: stripIndent`
+            some content
+                - option 1
+                - option 2
+                - <>
+            `,
+    },
+
     {
         description: "should wrap ordered-list and increase order",
         input: stripIndent`
@@ -310,8 +346,9 @@ const testCases: TestCase[] = [
             3. option 3
             4. <>`,
     },
+
     {
-        description: "should remove prefix of this line before default behavior for empty list line",
+        description: "should break wrap on empty unordered-list line",
         input: stripIndent`
             - option 1
             - option 2
@@ -322,6 +359,55 @@ const testCases: TestCase[] = [
         expected: stripIndent`
             - option 1
             - option 2
+            
+            <>`,
+    },
+
+    {
+        description: "should break wrap on empty ordered-list line",
+        input: stripIndent`
+            1. option 1
+            2. option 2
+            3. <>`,
+
+        act: () => userEvent.keyboard("{enter}"),
+
+        expected: stripIndent`
+            1. option 1
+            2. option 2
+            
+            <>`,
+    },
+
+    {
+        description: "should wrap custom checklist",
+        options: { customWrapping: ["- [] "] },
+        input: stripIndent`
+            - [] todo 1
+            - [] todo 2<>`,
+
+        act: () => userEvent.keyboard("{enter}"),
+
+        expected: stripIndent`
+            - [] todo 1
+            - [] todo 2
+            - [] <>`,
+    },
+
+    {
+        description: "should break wrap on empty custom checklist line",
+        options: { customWrapping: ["- [] "] },
+
+        input: stripIndent`
+            - [] todo 1
+            - [] todo 2 
+            - [] <>`,
+
+        act: () => userEvent.keyboard("{enter}"),
+
+        expected: stripIndent`
+            - [] todo 1
+            - [] todo 2 
             
             <>`,
     },
@@ -352,71 +438,17 @@ const testCases: TestCase[] = [
         expected: `![image](https://example/image.png) <>`,
     },
 
+    // ! Custom command
+    {
+        description: "should insert and wrap emoji (custom command)",
+        commands: [{ name: "emoji", handler: ({ cursor }) => cursor.insert(`${cursor.MARKER}🙃${cursor.MARKER}`) }],
+        commandName: "emoji",
+        input: "some text <>",
+        expected: "some text <🙃>",
+    },
+
     // ! Extension: intent
     // TODO: Mousetrap bind doesn't trigger on `userEvent.keyboard` | `fireEvent.keydown` | `Mousetrap.trigger`
-    // {
-    //     only: true,
-    //     description: "should apply tabulation",
-    //     input: `some<>`,
-    //     act: (el) => Mousetrap(el).trigger("tab"),
-    //     expected: `some    <>`,
-    // },
-    // {
-    //     description: "should apply tabulation inside line",
-    //     input: `some<> content`,
-    //     act: () => userEvent.keyboard("{tab}"),
-    //     expected: `some    <> content`,
-    // },
-    // {
-    //     description: "should intent whole line if something is selected",
-    //     input: `some <selected> content`,
-    //     act: () => userEvent.keyboard("{tab}"),
-    //     expected: `<    some selected content>`,
-    // },
-    // {
-    //     description: "should intent multiply lines if selected",
-    //     input: stripIndent`
-    //         li<ne1
-    //         line2
-    //         lin>e3
-    //         line4
-    //     `,
-    //     act: () => userEvent.tab(),
-    //     expected: stripIndent`
-    //         <    line1
-    //             line2
-    //             line3>
-    //         line4
-    //     `,
-    // },
-    // {
-    //     description: "should unindent",
-    //     commandName: "unindent",
-    //     input: `    some content<>`,
-    //     expected: `<some content>`,
-    // },
-    // {
-    //     description: "should unindent #2",
-    //     commandName: "unindent",
-    //     input: ` some <selected> content`,
-    //     expected: `<some selected content>`,
-    // },
-    // {
-    //     description: "should unindent multiply lines",
-    //     commandName: "unindent",
-    //     input: stripIndent`
-    //             line<1
-    //             line2
-    //             line3>
-    //         line4
-    //     `,
-    //     expected: stripIndent`
-    //         <line1
-    //         line2
-    //         line3>
-    //         line4
-    //     `,
-    // },
 ];
 
 const parseContent = (value: string) => {
@@ -444,7 +476,15 @@ describe("md formatting common cases", () => {
                     }
                 }, []);
 
-                return <TextareaMarkdown value={value} onChange={(e) => setValue(e.target.value)} ref={ref} />;
+                return (
+                    <TextareaMarkdown
+                        commands={c.commands}
+                        options={c.options}
+                        value={value}
+                        onChange={(e) => setValue(e.target.value)}
+                        ref={ref}
+                    />
+                );
             };
 
             const rendered = render(<Example />);

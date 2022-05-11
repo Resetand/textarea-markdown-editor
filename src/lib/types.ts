@@ -1,5 +1,5 @@
+import { Cursor, Line } from "./Cursor.new";
 import React, { ComponentPropsWithoutRef, ForwardRefExoticComponent, ReactElement, RefAttributes } from "react";
-import { Cursor } from "./Cursor.new";
 
 /** https://github.com/Microsoft/TypeScript/issues/29729 */
 export type LiteralUnion<T extends U, U = string> = T | (Pick<U, never> & { _?: never });
@@ -47,6 +47,11 @@ export type CommandConfig<TType extends CommandType = CommandType> = {
     enable?: boolean;
 };
 
+export type WrappingConfig = {
+    markup: string | ((enteringLine: Line) => string);
+    pattern: string | RegExp;
+};
+
 export type TextareaMarkdownOptions = {
     preferredUnorderedListSyntax: "-" | "*" | "+";
     preferredBoldSyntax: "**" | "__";
@@ -56,6 +61,7 @@ export type TextareaMarkdownOptions = {
     enableProperLineRemoveBehaviorExtension: boolean;
     enableLinkPasteExtension: boolean;
     enableListWrappingExtension: boolean;
+    customWrapping: (WrappingConfig | string)[];
 
     boldPlaceholder: string;
     italicPlaceholder: string;
@@ -76,6 +82,13 @@ export const defaultTextareaMarkdownOptions: TextareaMarkdownOptions = {
     preferredUnorderedListSyntax: "-",
     preferredBoldSyntax: "**",
     preferredItalicSyntax: "*",
+
+    enableIntentExtension: true,
+    enableLinkPasteExtension: true,
+    enableListWrappingExtension: true,
+    enableProperLineRemoveBehaviorExtension: true,
+    customWrapping: [],
+
     boldPlaceholder: "bold",
     italicPlaceholder: "italic",
     strikeThroughPlaceholder: "strike through",
@@ -89,18 +102,13 @@ export const defaultTextareaMarkdownOptions: TextareaMarkdownOptions = {
     linkUrlPlaceholder: "url",
     imageTextPlaceholder: "example",
     imageUrlPlaceholder: "image.png",
-
-    enableIntentExtension: true,
-    enableLinkPasteExtension: true,
-    enableListWrappingExtension: true,
-    enableProperLineRemoveBehaviorExtension: true,
 };
 
 export type CommandTrigger = (command: CommandType, keyEvent?: KeyboardEvent) => void;
 
 export type Command = PartialBy<CommandConfig, "handler">;
 
-export type Extension = (textarea: HTMLTextAreaElement) => void | (() => void);
+export type Extension = (textarea: HTMLTextAreaElement, options: TextareaMarkdownOptions) => void | (() => void);
 
 export type TextareaMarkdownConfig = {
     commands?: Command[];

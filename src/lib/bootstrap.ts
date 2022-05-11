@@ -54,10 +54,10 @@ export const bootstrapTextareaMarkdown = (textarea: HTMLTextAreaElement, config:
 
     // bootstrap extensions if enabled, extension can optionally returns a cleanup function, which will be called inside dispose
     const extensions = [
-        options.enableIntentExtension && intentExtension(textarea),
-        options.enableLinkPasteExtension && linkPasteExtension(textarea),
-        options.enableListWrappingExtension && listWrappingExtension(textarea),
-        options.enableProperLineRemoveBehaviorExtension && properLineRemoveBehaviorExtension(textarea),
+        options.enableIntentExtension && intentExtension(textarea, options),
+        options.enableLinkPasteExtension && linkPasteExtension(textarea, options),
+        options.enableListWrappingExtension && listWrappingExtension(textarea, options),
+        options.enableProperLineRemoveBehaviorExtension && properLineRemoveBehaviorExtension(textarea, options),
     ];
 
     // unsubscribe from all listeners

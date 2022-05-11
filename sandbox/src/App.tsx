@@ -1,11 +1,13 @@
 import React, { Fragment } from "react";
+
 import Advanced from "./examples/Advanced";
-import ImageUpload from "./examples/ImageUpload";
-import CustomComponent from "./examples/CustomComponent";
-import CustomizeCommands from "./examples/CustomizeCommands";
-import QuickStart from "./examples/Basic";
 import BuiltinCommands from "./examples/BuiltinCommands";
+import CustomComponent from "./examples/CustomComponent";
 import CustomComponentNestedTextarea from "./examples/CustomComponentNestedTextarea";
+import CustomWrapping from "./examples/CustomWrapping";
+import CustomizeCommands from "./examples/CustomizeCommands";
+import ImageUpload from "./examples/ImageUpload";
+import QuickStart from "./examples/Basic";
 
 function App() {
     return (
@@ -24,6 +26,8 @@ function App() {
             <ImageUpload />
             <h2>CustomComponentNestedTextarea</h2>
             <CustomComponentNestedTextarea />
+            <h2>CustomWrapping</h2>
+            <CustomWrapping />
         </Fragment>
     );
 }
