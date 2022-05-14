@@ -46,7 +46,7 @@
   "scripts": {
     "build": "tsc",
     "test": "./node_modules/.bin/jest --colors",
-    "test:coverage": "npm run test -- --coverage --coverageDirectory=./artifacts",
+    "test:coverage": "npm run test -- --coverage",
     "prepublish": "npm run test -- --watchAll=false && npm run build",
     "start-sandbox": "npm run build; npm link textarea-markdown-editor; npm link sandbox/node_modules/react; npm --prefix sandbox run start"
   },
