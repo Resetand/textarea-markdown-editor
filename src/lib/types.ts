@@ -73,16 +73,16 @@ export type TextareaMarkdownOptions = {
     /** Preferred italic wrap syntax `default: '*'` */
     preferredItalicSyntax: "*" | "_";
 
-    /** Will handle `tab` and `shift+tab` keystrokes, on which will insert/remove indentation instead of the default behavior `default:true` */
+    /** Will handle `tab`/`shift+tab` keystrokes, on which will insert/remove indentation instead of the default behavior `default:true` */
     enableIndentExtension: boolean;
 
-    /** Will handle `tab` and `command/ctrl+backspace` keystrokes, on which will remove only a current line instead of the default behavior `default:true` */
+    /** Will handle `command/ctrl+backspace` keystrokes, on which will remove only a current line instead of the default behavior `default:true` */
     enableProperLineRemoveBehaviorExtension: boolean;
 
-    /** Will handle `paste` event, on which will wrap pasted with link/image markup if pasted is URL `default:true` */
+    /** Will handle `paste` event, on which will wrap pasted with link or image markup if pasted is URL `default:true` */
     enableLinkPasteExtension: boolean;
 
-    /** Will handle `enter` keystroke, on which will wrap current list sequence if needed `default:true` */
+    /** Will handle `enter` keystroke, on which will wrap current list sequence to a new line if needed `default:true` */
     enablePrefixWrappingExtension: boolean;
 
     /** Array of custom prefixes, that need to be wrapped. (Will not work with `enablePrefixWrappingExtension:false`) */
