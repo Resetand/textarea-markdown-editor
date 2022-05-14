@@ -4,8 +4,8 @@
 
 [npm-image]: http://img.shields.io/npm/v/textarea-markdown-editor.svg?style=flat-square
 [npm-url]: http://npmjs.org/package/textarea-markdown-editor
-[github-action-image]: https://github.com/Resetand/textarea-markdown-editor/actions/workflows/test.yaml/badge.svg
-[github-action-url]: https://github.com/Resetand/textarea-markdown-editor/actions/workflows/test.yaml
+[github-action-image]: https://github.com/Resetand/textarea-markdown-editor/actions/workflows/ci.yaml/badge.svg
+[github-action-url]: https://github.com/Resetand/textarea-markdown-editor/actions/workflows/ci.yaml
 [codecov-image]: https://img.shields.io/codecov/c/github/resetand/textarea-markdown-editor/master.svg?style=flat-square
 [codecov-url]: https://codecov.io/gh/resetand/textarea-markdown-editor/branch/master
 
