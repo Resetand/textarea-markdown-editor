@@ -3,23 +3,19 @@ import {
     boldCommandHandler,
     codeBlockCommandHandler,
     codeInlineCommandHandler,
-    codeSelectedCommandHandler,
+    codeCommandHandler,
     createHeadlineCommandHandler,
     imageCommandHandler,
-    indentCommandHandler,
     italicCommandHandler,
     linkCommandHandler,
-    linkPasteCommandHandler,
-    nextLineCommandHandler,
     orderedListCommandHandler,
     strikeThroughCommandHandler,
-    unindentCommandHandler,
     unorderedListCommandHandler,
 } from "./handlers";
 import { CommandConfig } from "./types";
 import { metaCombination } from "./utils";
 
-export const wellKnownCommands: CommandConfig[] = [
+export const buildInCommands: CommandConfig[] = [
     {
         shortcut: metaCombination("b"),
         handler: boldCommandHandler,
@@ -29,26 +25,6 @@ export const wellKnownCommands: CommandConfig[] = [
         shortcut: metaCombination("i"),
         handler: italicCommandHandler,
         name: "italic",
-    },
-    {
-        shortcut: "enter",
-        handler: nextLineCommandHandler,
-        name: "next-line",
-    },
-    {
-        shortcut: "tab",
-        name: "indent",
-        handler: indentCommandHandler,
-    },
-    {
-        shortcut: "shift+tab",
-        name: "unindent",
-        handler: unindentCommandHandler,
-    },
-    {
-        shortcut: metaCombination("v"),
-        name: "link-paste",
-        handler: linkPasteCommandHandler,
     },
     {
         name: "link",
@@ -76,7 +52,7 @@ export const wellKnownCommands: CommandConfig[] = [
     },
     {
         name: "code",
-        handler: codeSelectedCommandHandler,
+        handler: codeCommandHandler,
     },
     {
         name: "block-quotes",

@@ -19,34 +19,34 @@
     "dist/**/*"
   ],
   "peerDependencies": {
-    "react": "^16.9.0 || ^17.0",
-    "react-dom": "^16.9.0 || ^17.0"
+    "react": "^16.9.0 || ^17.0 || ^18.0",
+    "react-dom": "^16.9.0 || ^17.0 || ^18.0"
   },
   "dependencies": {
-    "mousetrap": "^1.6.5",
-    "react-trigger-change": "^1.0.2"
+    "mousetrap": "^1.6.5"
   },
   "devDependencies": {
-    "@testing-library/jest-dom": "5.11.4",
-    "@testing-library/react": "11.1.0",
-    "@testing-library/user-event": "12.1.10",
-    "@types/common-tags": "1.8.0",
-    "@types/jest": "^26.0.15",
-    "@types/mousetrap": "1.6.7",
-    "@types/node": "12.0.0",
-    "@types/react": "16.9.0",
-    "@types/react-dom": "16.9.0",
-    "common-tags": "1.8.0",
-    "jest": "^26.6.3",
-    "jest-environment-jsdom-sixteen": "^2.0.0",
-    "react": "16.9.0",
-    "react-dom": "16.9.0",
-    "ts-jest": "^26.5.6",
-    "typescript": "^4.0.3"
+    "@testing-library/jest-dom": "5.16.4",
+    "@testing-library/react": "13.2.0",
+    "@testing-library/user-event": "14.1.1",
+    "@types/common-tags": "1.8.1",
+    "@types/jest": "27.5.0",
+    "@types/mousetrap": "1.6.9",
+    "@types/node": "17.0.31",
+    "@types/react": "18.0.9",
+    "@types/react-dom": "18.0.3",
+    "common-tags": "1.8.2",
+    "jest": "28.1.0",
+    "jest-environment-jsdom": "28.1.0",
+    "react": "18.1.0",
+    "react-dom": "18.1.0",
+    "ts-jest": "28.0.2",
+    "typescript": "4.6.4"
   },
   "scripts": {
     "build": "tsc",
-    "test": "npx jest --env=jsdom-sixteen",
+    "test": "./node_modules/.bin/jest --colors",
+    "test:coverage": "npm run test -- --coverage --coverageDirectory=./artifacts",
     "prepublish": "npm run test -- --watchAll=false && npm run build",
     "start-sandbox": "npm run build; npm link textarea-markdown-editor; npm link sandbox/node_modules/react; npm --prefix sandbox run start"
   },
