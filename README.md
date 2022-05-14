@@ -17,9 +17,9 @@ npm install textarea-markdown-editor
 
 **Textarea Markdown** is a simple markdown editor using only `<textarea/>`. It extends textarea by adding formatting features like shortcuts, list-wrapping, invoked commands and other to make user experience better 🙃
 
-Essentially this library just provides the textarea Component. You can choose any markdown parser, create your own layout, and event your own textarea component that is styled and behaves however you like
+Essentially this library just provides the textarea Component. You can choose any markdown parser, create your own layout, and use your own textarea component that is styled and behaves however you like
 
-<p align="center">
+<p style='max-width:800px;margin-top:8%' align="center">
   <img src="https://raw.githubusercontent.com/Resetand/textarea-markdown-editor/master/img/overview.gif" />
 </p>
 
