@@ -314,7 +314,7 @@ const testCases: TestCase[] = [
     },
 
     {
-        description: "should wrap unordered-list within intent",
+        description: "should wrap unordered-list within indent",
         input: stripIndent`
             some content
                 - option 1
@@ -381,7 +381,7 @@ const testCases: TestCase[] = [
 
     {
         description: "should wrap custom checklist",
-        options: { customWrapping: ["- [] "] },
+        options: { customPrefixWrapping: ["- [] "] },
         input: stripIndent`
             - [] todo 1
             - [] todo 2<>`,
@@ -396,7 +396,7 @@ const testCases: TestCase[] = [
 
     {
         description: "should break wrap on empty custom checklist line",
-        options: { customWrapping: ["- [] "] },
+        options: { customPrefixWrapping: ["- [] "] },
 
         input: stripIndent`
             - [] todo 1
@@ -447,7 +447,7 @@ const testCases: TestCase[] = [
         expected: "some text <🙃>",
     },
 
-    // ! Extension: intent
+    // ! Extension: indent
     // TODO: Mousetrap bind doesn't trigger on `userEvent.keyboard` | `fireEvent.keydown` | `Mousetrap.trigger`
 ];
 

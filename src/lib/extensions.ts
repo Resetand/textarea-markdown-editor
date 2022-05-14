@@ -1,6 +1,6 @@
 import Mousetrap from "mousetrap";
 import { Cursor } from "./Cursor.new";
-import { Extension, WrappingConfig } from "./types";
+import { Extension, PrefixWrappingConfig } from "./types";
 import { escapeRegExp, getIncrementedOrderedListPrefix, isBtwOrEq, metaCombination } from "./utils";
 
 /**
@@ -63,7 +63,7 @@ export const linkPasteExtension: Extension = (textarea) => {
 /**
  * Handle `tab`/`shift+tab` combination. Will insert or remove an intend depends on selection
  */
-export const intentExtension: Extension = (textarea) => {
+export const indentExtension: Extension = (textarea) => {
     const mousetrap = Mousetrap(textarea);
     const cursor = new Cursor(textarea);
 
@@ -94,25 +94,30 @@ export const intentExtension: Extension = (textarea) => {
 /**
  * Handle next-line event. Will wrap current list sequence if needed
  */
-export const listWrappingExtension: Extension = (textarea, options) => {
+export const prefixWrappingExtension: Extension = (textarea, options) => {
     const cursor = new Cursor(textarea);
 
     const ensureRegExp = (value: RegExp | string) => (value instanceof RegExp ? value : new RegExp(escapeRegExp(value)));
-    const getLinePattern = (config: WrappingConfig) => new RegExp(`^\\s*(${ensureRegExp(config.pattern).source}).*$`);
+    const getLineRegExp = (prefixRe: RegExp) => new RegExp(`^\\s*(${prefixRe.source}).*$`);
 
-    const mapToWrappingConfig = (value: WrappingConfig | string): WrappingConfig =>
-        typeof value === "string" ? { markup: value, pattern: value } : value;
+    const toConfig = (value: PrefixWrappingConfig | string): PrefixWrappingConfig =>
+        typeof value === "string" ? { prefix: value, prefixPattern: ensureRegExp(value) } : value;
 
-    const customConfigs = options.customWrapping.map(mapToWrappingConfig);
+    const getIndent = (text: string) => " ".repeat(text.match(/^\s*/)?.[0].length ?? 0);
 
-    const buildInConfigs: WrappingConfig[] = [
+    const customConfigs = options.customPrefixWrapping.map(toConfig);
+
+    const buildInConfigs: PrefixWrappingConfig[] = [
         {
-            pattern: "- ",
-            markup: "- ",
+            prefix: "- ",
+            shouldBreakIfEmpty: true,
+            shouldSaveIndent: true,
         },
         {
-            pattern: /(\d+\.){1,2}\s+/,
-            markup: (line) => getIncrementedOrderedListPrefix(/^(\s*((\d+\.){1,2})\s+.*)$/.exec(line.text)?.[2] ?? "") + " ",
+            prefixPattern: /(\d+\.){1,2}\s+/,
+            prefix: (line) => getIncrementedOrderedListPrefix(/^(\s*((\d+\.){1,2})\s+.*)$/.exec(line.text)?.[2] ?? "") + " ",
+            shouldBreakIfEmpty: true,
+            shouldSaveIndent: true,
         },
     ];
 
@@ -126,18 +131,24 @@ export const listWrappingExtension: Extension = (textarea, options) => {
         // this code bellow should be executed before default behavior.
         // entering line – is line on which the Enter was pressed
         const enteringLine = cursor.lineAt(cursor.position.line.lineNumber)!;
-        const config = configs.find((config) => getLinePattern(config).test(enteringLine.text));
 
-        if (!config) {
+        const strictConfigs = configs.map((config) => {
+            const prefix = config.prefix instanceof Function ? config.prefix(enteringLine) : config.prefix;
+            const pattern = ensureRegExp(config.prefixPattern ?? prefix);
+            const shouldBreak = config.shouldBreakIfEmpty === false ? false : !enteringLine.text.replace(pattern, "").trim();
+            const shouldSaveIndent = config.shouldSaveIndent !== false;
+            return { prefix, pattern, shouldBreak, shouldSaveIndent };
+        });
+
+        const matched = strictConfigs.find(({ pattern }) => getLineRegExp(pattern).test(enteringLine.text));
+
+        if (!matched) {
             // no matches
             return;
         }
+        const { pattern, prefix, shouldBreak, shouldSaveIndent } = matched;
 
-        const pattern = ensureRegExp(config.pattern);
-
-        const isEmptySequenceLine = !enteringLine.text.replace(pattern, "").trim();
-
-        if (isEmptySequenceLine) {
+        if (shouldBreak) {
             // for a list line without content remove prefix of this line before default behavior
             cursor.replaceLine(enteringLine.lineNumber, "");
             return;
@@ -145,11 +156,10 @@ export const listWrappingExtension: Extension = (textarea, options) => {
 
         event?.preventDefault();
 
-        const prefix = config.markup instanceof Function ? config.markup(enteringLine) : config.markup;
         const contentAfterCursor = enteringLine.text.slice(textarea.selectionEnd);
-        const intent = " ".repeat(enteringLine.text.match(/^\s*/)?.[0].length ?? 0);
+        const indent = shouldSaveIndent ? getIndent(enteringLine.text) : "";
 
-        cursor.insert(`\n${intent}${prefix}${contentAfterCursor.replace(pattern, "")}${Cursor.MARKER}`);
+        cursor.insert(`\n${indent}${prefix}${contentAfterCursor.replace(pattern, "")}${Cursor.MARKER}`);
     };
 
     textarea.addEventListener("keydown", keydownListener);

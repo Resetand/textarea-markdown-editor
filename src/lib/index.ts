@@ -1,4 +1,5 @@
-export { BUILD_IN_COMMANDS as WELL_KNOWN_COMMANDS } from "./types";
+export { bootstrapTextareaMarkdown } from "./bootstrap";
+export { BUILT_IN_COMMANDS } from "./types";
 export type {
     TextareaMarkdownRef,
     CommandHandler,

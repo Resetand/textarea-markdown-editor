@@ -7,7 +7,7 @@ export type LiteralUnion<T extends U, U = string> = T | (Pick<U, never> & { _?: 
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
-export const BUILD_IN_COMMANDS = [
+export const BUILT_IN_COMMANDS = [
     "bold",
     "italic",
     "strike-through",
@@ -27,7 +27,7 @@ export const BUILD_IN_COMMANDS = [
     "block-quotes",
 ] as const;
 
-export type CommandType = LiteralUnion<typeof BUILD_IN_COMMANDS[number], string>;
+export type CommandType = LiteralUnion<typeof BUILT_IN_COMMANDS[number], string>;
 
 export type CommandHandlerContext = {
     textarea: HTMLTextAreaElement;
@@ -40,41 +40,91 @@ export type CommandHandlerContext = {
 export type CommandHandler = (context: CommandHandlerContext) => void | Promise<void>;
 
 export type CommandConfig<TType extends CommandType = CommandType> = {
+    /** Handler function for custom commands */
     handler: CommandHandler;
+
+    /** Shortcut combinations ([Mousetrap.js](https://craig.is/killing/mice)) */
     shortcut?: string | string[];
+
+    /** Toggle key event prevent `default:false` */
     shortcutPreventDefault?: boolean;
+
+    /** Built-in or custom command name */
     name: TType;
+
+    /** Toggle command enabling */
     enable?: boolean;
 };
 
-export type WrappingConfig = {
-    markup: string | ((enteringLine: Line) => string);
-    pattern: string | RegExp;
+export type PrefixWrappingConfig = {
+    prefix: string | ((enteringLine: Line) => string);
+    prefixPattern?: RegExp;
+    shouldBreakIfEmpty?: boolean;
+    shouldSaveIndent?: boolean;
 };
 
 export type TextareaMarkdownOptions = {
+    /** Preferred unordered list prefix `default: '-'` */
     preferredUnorderedListSyntax: "-" | "*" | "+";
+
+    /** Preferred bold wrap syntax `default: '**'` */
     preferredBoldSyntax: "**" | "__";
+
+    /** Preferred italic wrap syntax `default: '*'` */
     preferredItalicSyntax: "*" | "_";
 
-    enableIntentExtension: boolean;
-    enableProperLineRemoveBehaviorExtension: boolean;
-    enableLinkPasteExtension: boolean;
-    enableListWrappingExtension: boolean;
-    customWrapping: (WrappingConfig | string)[];
+    /** Will handle `tab` and `shift+tab` keystrokes, on which will insert/remove indentation instead of the default behavior `default:true` */
+    enableIndentExtension: boolean;
 
+    /** Will handle `tab` and `command/ctrl+backspace` keystrokes, on which will remove only a current line instead of the default behavior `default:true` */
+    enableProperLineRemoveBehaviorExtension: boolean;
+
+    /** Will handle `paste` event, on which will wrap pasted with link/image markup if pasted is URL `default:true` */
+    enableLinkPasteExtension: boolean;
+
+    /** Will handle `enter` keystroke, on which will wrap current list sequence if needed `default:true` */
+    enablePrefixWrappingExtension: boolean;
+
+    /** Array of custom prefixes, that need to be wrapped. (Will not work with `enablePrefixWrappingExtension:false`) */
+    customPrefixWrapping: (PrefixWrappingConfig | string)[];
+
+    /** `default: 'bold'` */
     boldPlaceholder: string;
+
+    /** `default: 'italic'` */
     italicPlaceholder: string;
+
+    /** `default: 'strike through'` */
     strikeThroughPlaceholder: string;
+
+    /** `default: 'code'` */
     codeInlinePlaceholder: string;
+
+    /** `default: 'code block'` */
     codeBlockPlaceholder: string;
+
+    /** `default: 'ordered list'` */
     orderedListPlaceholder: string;
+
+    /** `default: 'unordered list'` */
     unorderedListPlaceholder: string;
+
+    /** `default: (lvl) => 'headline ' + lvl` */
     headlinePlaceholder: string | ((level: number) => string);
+
+    /** `default: 'quote'` */
     blockQuotesPlaceholder: string;
+
+    /** Used inside default link markup `[<example>](...)`  `default: 'example'` */
     linkTextPlaceholder: string;
-    linkUrlPlaceholder?: string;
+
+    /** Used inside default image markup `![...](<url>)`  `default: 'url'` */
+    linkUrlPlaceholder: string;
+
+    /** Used inside default image markup `![<example>](...)`  `default: 'example'` */
     imageTextPlaceholder: string;
+
+    /** Used inside default image markup `![...](<image.png>)`  `default: 'image.png'` */
     imageUrlPlaceholder: string;
 };
 
@@ -83,11 +133,11 @@ export const defaultTextareaMarkdownOptions: TextareaMarkdownOptions = {
     preferredBoldSyntax: "**",
     preferredItalicSyntax: "*",
 
-    enableIntentExtension: true,
+    enableIndentExtension: true,
     enableLinkPasteExtension: true,
-    enableListWrappingExtension: true,
+    enablePrefixWrappingExtension: true,
     enableProperLineRemoveBehaviorExtension: true,
-    customWrapping: [],
+    customPrefixWrapping: [],
 
     boldPlaceholder: "bold",
     italicPlaceholder: "italic",

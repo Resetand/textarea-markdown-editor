@@ -8,6 +8,7 @@ function App() {
     return (
         <Fragment>
             <button onClick={() => ref.current?.trigger("bold")}>Bold</button>
+            <br />
             <TextareaMarkdown ref={ref} value={value} onChange={(e) => setValue(e.target.value)} />
         </Fragment>
     );

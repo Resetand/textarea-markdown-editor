@@ -1,14 +1,14 @@
 import Mousetrap from "mousetrap";
 import { buildInCommands } from "./commands";
 import { Cursor } from "./Cursor.new";
-import { properLineRemoveBehaviorExtension, intentExtension, linkPasteExtension, listWrappingExtension } from "./extensions";
+import { properLineRemoveBehaviorExtension, indentExtension, linkPasteExtension, prefixWrappingExtension } from "./extensions";
 import {
     Command,
     CommandConfig,
     CommandTrigger,
     defaultTextareaMarkdownOptions,
     TextareaMarkdownOptions,
-    BUILD_IN_COMMANDS,
+    BUILT_IN_COMMANDS,
 } from "./types";
 import { findLast } from "./utils";
 
@@ -54,9 +54,9 @@ export const bootstrapTextareaMarkdown = (textarea: HTMLTextAreaElement, config:
 
     // bootstrap extensions if enabled, extension can optionally returns a cleanup function, which will be called inside dispose
     const extensions = [
-        options.enableIntentExtension && intentExtension(textarea, options),
+        options.enableIndentExtension && indentExtension(textarea, options),
         options.enableLinkPasteExtension && linkPasteExtension(textarea, options),
-        options.enableListWrappingExtension && listWrappingExtension(textarea, options),
+        options.enablePrefixWrappingExtension && prefixWrappingExtension(textarea, options),
         options.enableProperLineRemoveBehaviorExtension && properLineRemoveBehaviorExtension(textarea, options),
     ];
 
@@ -76,7 +76,7 @@ const mergedCommandsList = (customCommands: Command[] = []) => {
     const commands = [...buildInCommands];
 
     customCommands?.forEach((command) => {
-        if (BUILD_IN_COMMANDS.includes(command.name as any)) {
+        if (BUILT_IN_COMMANDS.includes(command.name as any)) {
             const commandIndex = buildInCommands.findIndex((x) => x.name === command.name)!;
 
             const overrides: CommandConfig = {

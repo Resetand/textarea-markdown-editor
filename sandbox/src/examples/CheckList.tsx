@@ -18,7 +18,7 @@ function App() {
             </div>
             <TextareaMarkdown
                 ref={mdRef}
-                options={{ customWrapping: ["- [] "] }}
+                options={{ customPrefixWrapping: ["- [] "] }}
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
                 commands={[{ name: "checklist", handler: checklistHandler }]}

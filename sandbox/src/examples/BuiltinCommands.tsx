@@ -1,5 +1,5 @@
 import React, { Fragment, useRef, useState } from "react";
-import TextareaMarkdown, { TextareaMarkdownRef, WELL_KNOWN_COMMANDS } from "textarea-markdown-editor";
+import TextareaMarkdown, { TextareaMarkdownRef, BUILT_IN_COMMANDS } from "textarea-markdown-editor";
 
 function App() {
     const [value, setValue] = useState("");
@@ -7,19 +7,11 @@ function App() {
 
     return (
         <Fragment>
-            {WELL_KNOWN_COMMANDS.map((c) => (
+            {BUILT_IN_COMMANDS.map((c) => (
                 <button onClick={() => ref.current?.trigger(c)}>{c}</button>
             ))}
             <br />
-            <TextareaMarkdown
-                options={{
-                    enableIntentExtension: true,
-                    enableProperLineRemoveBehaviorExtension: true,
-                }}
-                ref={ref}
-                value={value}
-                onChange={(e) => setValue(e.target.value)}
-            />
+            <TextareaMarkdown ref={ref} value={value} onChange={(e) => setValue(e.target.value)} />
         </Fragment>
     );
 }
