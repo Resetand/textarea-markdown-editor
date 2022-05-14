@@ -1,0 +1,14 @@
+name: Coverage
+on: pull_request
+jobs:
+    run:
+        permissions:
+            checks: write
+            pull-requests: write
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v1
+
+            - name: Reporting test coverage
+              uses: ArtiomTr/jest-coverage-report-action@v2
