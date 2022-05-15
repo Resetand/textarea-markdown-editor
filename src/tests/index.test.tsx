@@ -314,6 +314,18 @@ const testCases: TestCase[] = [
     },
 
     {
+        description: "should wrap unordered-list within content #2",
+        input: stripIndent`
+            - <>option 1`,
+
+        act: () => userEvent.keyboard("{enter}"),
+
+        expected: stripIndent`
+            - 
+            - <>option 1`,
+    },
+
+    {
         description: "should wrap unordered-list within indent",
         input: stripIndent`
             some content

@@ -109,7 +109,7 @@ export const prefixWrappingExtension: Extension = (textarea, options) => {
 
     const buildInConfigs: PrefixWrappingConfig[] = [
         {
-            prefix: "- ",
+            prefix: `${options.preferredUnorderedListSyntax} `,
             shouldBreakIfEmpty: true,
             shouldSaveIndent: true,
         },
@@ -146,7 +146,7 @@ export const prefixWrappingExtension: Extension = (textarea, options) => {
             // no matches
             return;
         }
-        const { pattern, prefix, shouldBreak, shouldSaveIndent } = matched;
+        const { prefix, shouldBreak, shouldSaveIndent } = matched;
 
         if (shouldBreak) {
             // for a list line without content remove prefix of this line before default behavior
@@ -156,10 +156,10 @@ export const prefixWrappingExtension: Extension = (textarea, options) => {
 
         event?.preventDefault();
 
-        const contentAfterCursor = enteringLine.text.slice(textarea.selectionEnd);
+        // if shouldSaveIndent need to wrap prefix within intent of entering line
         const indent = shouldSaveIndent ? getIndent(enteringLine.text) : "";
 
-        cursor.insert(`\n${indent}${prefix}${contentAfterCursor.replace(pattern, "")}${Cursor.MARKER}`);
+        cursor.insert(`\n${indent}${prefix}${Cursor.MARKER}`);
     };
 
     textarea.addEventListener("keydown", keydownListener);

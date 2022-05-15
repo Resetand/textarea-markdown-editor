@@ -28,7 +28,8 @@ Essentially this library just provides the textarea Component. You can choose an
 -   Lists wrapping
 -   Auto formatting pasted links
 -   Indent tabulation
--   20 built-in customizable commands
+-   Keyboard shortcuts handling
+-   17 built-in customizable commands
 
 ## Usage
 
@@ -123,7 +124,28 @@ function App() {
 ℹ️ [Mousetrap.js](https://craig.is/killing/mice) is used under the hood for shortcuts handling.
 It is great solution with simple and intuitive api. You can read more about combination in the documentation
 
+### `β` Usage without `react`
+
+```js
+import { bootstrapTextareaMarkdown } from "textarea-markdown-editor/dist/bootstrap";
+
+const textarea = document.querySelector("textarea"); // element can be obtained from anywhere, this is just an example;
+
+const { trigger, dispose } = bootstrapTextareaMarkdown(textarea, {
+    options: {}, // optional options config
+    commands: [], // optional commands configs
+});
+```
+
+ℹ️ Checkout [sandbox example](https://codesandbox.io/s/vanila-textarea-markdown-editor-5q6bqb?file=/src/index.js)
+
+ℹ️ Although this is possible, this feature is more of a workaround, since the library was originally written to be used with react, your package manager probably will warn you about missing peer-dependencies
+
+---
+
 ### 👀 You can find more examples [here](https://github.com/Resetand/textarea-markdown-editor/tree/master/sandbox/src/examples)
+
+---
 
 ## API
 
@@ -175,25 +197,25 @@ export type CommandHandlerContext = {
 
 #### `Built-in commands`
 
-| Name               | Description                                                      | Shortcut               |
-| ------------------ | ---------------------------------------------------------------- | ---------------------- |
-| **bold**           | Insert or wrap bold markup                                       | `ctrl/command+b`       |
-| **italic**         | Insert or wrap italic markup                                     | `ctrl/command+i`       |
-| **strike-through** | Insert or wrap strike-through markup                             | `ctrl/command+shift+x` |
-| **link**           | Insert link markup                                               |                        |
-| **image**          | Insert image markup                                              |                        |
-| **unordered-list** | Insert unordered list markup                                     |                        |
-| **ordered-list**   | Insert ordered list markup                                       |                        |
-| **code-block**     | Insert or wrap code block markup                                 |                        |
-| **code-inline**    | Insert or wrap inline code markup                                |                        |
-| **code**           | Insert or wrap inline or block code markup dependent of selected |                        |
-| **block-quotes**   | Insert block-quotes markup                                       |                        |
-| **h1**             | Insert h1 headline                                               |                        |
-| **h2**             | Insert h2 headline                                               |                        |
-| **h3**             | Insert h3 headline                                               |                        |
-| **h4**             | Insert h4 headline                                               |                        |
-| **h5**             | Insert h5 headline                                               |                        |
-| **h6**             | Insert h6 headline                                               |                        |
+| Name               | Description                                                        | Shortcut               |
+| ------------------ | ------------------------------------------------------------------ | ---------------------- |
+| **bold**           | Inserts or wraps bold markup                                       | `ctrl/command+b`       |
+| **italic**         | Inserts or wraps italic markup                                     | `ctrl/command+i`       |
+| **strike-through** | Inserts or wraps strike-through markup                             | `ctrl/command+shift+x` |
+| **link**           | Inserts or wraps link markup                                       |                        |
+| **image**          | Inserts or wraps image markup                                      |                        |
+| **unordered-list** | Inserts or wraps unordered list markup                             |                        |
+| **ordered-list**   | Inserts or wraps ordered list markup                               |                        |
+| **code-block**     | Inserts or wraps code block markup                                 |                        |
+| **code-inline**    | Inserts or wraps inline code markup                                |                        |
+| **code**           | Inserts or wraps inline or block code markup dependent of selected |                        |
+| **block-quotes**   | Inserts or wraps block-quotes markup                               |                        |
+| **h1**             | Inserts h1 headline                                                |                        |
+| **h2**             | Inserts h2 headline                                                |                        |
+| **h3**             | Inserts h3 headline                                                |                        |
+| **h4**             | Inserts h4 headline                                                |                        |
+| **h5**             | Inserts h5 headline                                                |                        |
+| **h6**             | Inserts h6 headline                                                |                        |
 
 ---
 

@@ -1,12 +1,13 @@
 import React, { Fragment } from "react";
 
+import Basic from "./examples/Basic";
 import BuiltinCommands from "./examples/BuiltinCommands";
+import CheckList from "./examples/CheckList";
 import CustomComponent from "./examples/CustomComponent";
 import CustomComponentNestedTextarea from "./examples/CustomComponentNestedTextarea";
-import CheckList from "./examples/CheckList";
 import CustomizeCommands from "./examples/CustomizeCommands";
 import ImageUpload from "./examples/ImageUpload";
-import Basic from "./examples/Basic";
+import SaveIndentOnLineBreak from "./examples/SaveIndentOnLineBreak";
 
 function App() {
     return (
@@ -25,6 +26,8 @@ function App() {
             <CustomComponentNestedTextarea />
             <h2>CheckList</h2>
             <CheckList />
+            <h2>SaveIndentOnLineBreak</h2>
+            <SaveIndentOnLineBreak />
         </Fragment>
     );
 }

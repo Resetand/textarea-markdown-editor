@@ -1,5 +1,5 @@
 import { CommandHandler } from "./types";
-import { clamp } from "./utils";
+import { clamp, escapeRegExp } from "./utils";
 import { Cursor } from "./Cursor.new";
 
 export const boldCommandHandler: CommandHandler = ({ cursor, options: { preferredBoldSyntax, boldPlaceholder } }) => {
@@ -39,7 +39,7 @@ export const orderedListCommandHandler: CommandHandler = ({ cursor }) => {
 
 export const unorderedListCommandHandler: CommandHandler = ({ cursor, options }) => {
     const syntax = options.preferredUnorderedListSyntax;
-    const re = new RegExp(`^${syntax}\\s+`);
+    const re = new RegExp(`^${escapeRegExp(syntax)}\\s+`);
     const lines = cursor.selection?.lines ?? [cursor.position.line];
     const needUndo = lines.every((line) => re.test(line.text));
 

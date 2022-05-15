@@ -1,6 +1,6 @@
 {
   "name": "textarea-markdown-editor",
-  "version": "1.0.0-rc.1",
+  "version": "1.0.0-rc.0",
   "description": "UI headless React markdown editor using only textarea",
   "homepage": "https://github.com/Resetand/markdown-textarea",
   "author": "Resetand",
@@ -19,8 +19,8 @@
     "dist/**/*"
   ],
   "peerDependencies": {
-    "react": ">=16.9.0",
-    "react-dom": ">=16.9.0"
+    "react": "^16.8.0 || ^17.0.0 || || ^18.0.0",
+    "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0"
   },
   "dependencies": {
     "mousetrap": "^1.6.5"
@@ -38,6 +38,7 @@
     "common-tags": "1.8.2",
     "jest": "28.1.0",
     "jest-environment-jsdom": "28.1.0",
+    "npm-watch": "^0.11.0",
     "react": "18.1.0",
     "react-dom": "18.1.0",
     "ts-jest": "28.0.2",
@@ -45,15 +46,24 @@
   },
   "scripts": {
     "build": "tsc",
+    "build:watch": "npm-watch build",
     "test": "./node_modules/.bin/jest --colors",
     "test:coverage": "npm run test -- --coverage",
     "prepublish": "npm run test -- --watchAll=false && npm run build",
-    "start-sandbox": "npm run build; npm link textarea-markdown-editor; npm link sandbox/node_modules/react; npm --prefix sandbox run start"
+    "start-sandbox": "npm run build; npm --prefix sandbox i -f; npm link sandbox/node_modules/react; npm --prefix sandbox run start"
   },
   "eslintConfig": {
     "extends": [
       "react-app",
       "react-app/jest"
     ]
+  },
+  "watch": {
+    "build": {
+      "patterns": [
+        "src"
+      ],
+      "extensions": "ts,tsx,js,jsx"
+    }
   }
 }
