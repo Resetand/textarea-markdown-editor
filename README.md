@@ -13,6 +13,8 @@
 npm install textarea-markdown-editor
 ```
 
+> There are some breaking changes since v1.0.0 released, checkout the [release note](https://github.com/Resetand/textarea-markdown-editor/releases)
+
 ---
 
 **Textarea Markdown** is a simple markdown editor using only `<textarea/>`. It extends textarea by adding formatting features like shortcuts, list-wrapping, invoked commands and other to make user experience better 🙃
