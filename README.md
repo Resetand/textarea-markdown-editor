@@ -13,7 +13,7 @@
 npm install textarea-markdown-editor
 ```
 
-> There are some breaking changes since v1.0.0 released, checkout the [release note](https://github.com/Resetand/textarea-markdown-editor/releases)
+> There are some breaking changes since v1.0.0 released, checkout the [release note](https://github.com/Resetand/textarea-markdown-editor/releases/tag/v1.0.0)
 
 ---
 
