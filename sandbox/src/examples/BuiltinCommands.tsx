@@ -11,7 +11,12 @@ function App() {
                 <button onClick={() => ref.current?.trigger(c)}>{c}</button>
             ))}
             <br />
-            <TextareaMarkdown ref={ref} value={value} onChange={(e) => setValue(e.target.value)} />
+            <TextareaMarkdown
+                options={{ preferredUnorderedListSyntax: "*" }}
+                ref={ref}
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+            />
         </Fragment>
     );
 }

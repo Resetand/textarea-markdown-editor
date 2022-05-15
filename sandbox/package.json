@@ -8,7 +8,8 @@
     "react-dom": "latest",
     "react-scripts": "latest",
     "react-textarea-autosize": "latest",
-    "typescript": "latest"
+    "typescript": "latest",
+    "textarea-markdown-editor": "file:../."
   },
   "scripts": {
     "start": "react-scripts start",

@@ -115,9 +115,6 @@ export function changeInputValue(input: HTMLTextAreaElement | HTMLInputElement, 
             }
         }
 
-        // Correct the cursor position to be at the end of the insertion
-        input.setSelectionRange(start + value.length, start + value.length);
-
         // Notify any possible listeners of the change
         const e = document.createEvent("UIEvent");
         e.initEvent("input", true, false);
