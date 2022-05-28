@@ -1,5 +1,5 @@
-export { bootstrapTextareaMarkdown } from "./bootstrap";
-export { BUILT_IN_COMMANDS } from "./types";
+export { bootstrapTextareaMarkdown } from './bootstrap';
+export { BUILT_IN_COMMANDS } from './types';
 export type {
     TextareaMarkdownRef,
     CommandHandler,
@@ -11,7 +11,7 @@ export type {
     CommandConfig,
     Command,
     TextareaMarkdownConfig,
-} from "./types";
+} from './types';
 
-export { Cursor } from "./Cursor.new";
-export { TextareaMarkdown as default } from "./TextareaMarkdown";
+export { Cursor } from './Cursor.new';
+export { TextareaMarkdown as default } from './TextareaMarkdown';

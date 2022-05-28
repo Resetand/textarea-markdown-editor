@@ -1,13 +1,14 @@
-import React, { Fragment } from "react";
+import React, { Fragment } from 'react';
 
-import Basic from "./examples/Basic";
-import BuiltinCommands from "./examples/BuiltinCommands";
-import CheckList from "./examples/CheckList";
-import CustomComponent from "./examples/CustomComponent";
-import CustomComponentNestedTextarea from "./examples/CustomComponentNestedTextarea";
-import CustomizeCommands from "./examples/CustomizeCommands";
-import ImageUpload from "./examples/ImageUpload";
-import SaveIndentOnLineBreak from "./examples/SaveIndentOnLineBreak";
+import Basic from './examples/Basic';
+import BuiltinCommands from './examples/BuiltinCommands';
+import CheckList from './examples/CheckList';
+import CustomComponent from './examples/CustomComponent';
+import CustomComponentNestedTextarea from './examples/CustomComponentNestedTextarea';
+import CustomizeCommands from './examples/CustomizeCommands';
+import ImageUpload from './examples/ImageUpload';
+import SaveIndentOnLineBreak from './examples/SaveIndentOnLineBreak';
+import CommandArgs from './examples/CommandArgs';
 
 function App() {
     return (
@@ -28,6 +29,8 @@ function App() {
             <CheckList />
             <h2>SaveIndentOnLineBreak</h2>
             <SaveIndentOnLineBreak />
+            <h2>CommandArgs</h2>
+            <CommandArgs />
         </Fragment>
     );
 }

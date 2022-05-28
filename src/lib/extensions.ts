@@ -1,7 +1,7 @@
-import Mousetrap from "mousetrap";
-import { Cursor } from "./Cursor.new";
-import { Extension, PrefixWrappingConfig } from "./types";
-import { escapeRegExp, getIncrementedOrderedListPrefix, isBtwOrEq, metaCombination } from "./utils";
+import Mousetrap from 'mousetrap';
+import { Cursor } from './Cursor.new';
+import { Extension, PrefixWrappingConfig } from './types';
+import { escapeRegExp, getIncrementedOrderedListPrefix, isBtwOrEq, metaCombination } from './utils';
 
 /**
  * Handle the paste event, if the pasted text is a URL and something is selected, it will be converted to link/image markup.
@@ -11,10 +11,11 @@ export const linkPasteExtension: Extension = (textarea) => {
 
     const pasteListener = (event: ClipboardEvent) => {
         const LINK_MARKUP_RE = /\[.*\]\(.*\)/g;
-        const URL_RE = /(https?|ftp):\/\/(-\.)?([^\s/?\.#-]+\.?)+(\/[^\s]*)?$/i;
-        const IMAGE_URL_RE = /(https?|ftp):\/\/(-\.)?([^\s/?\.#-]+\.?)+(\/[^\s]*)?\.(png|tiff|tif|bmp|jpg|jpeg|gif|eps|webp|bmp|dib|svg)$/i;
+        const URL_RE = /(https?|ftp):\/\/(-\.)?([^\s/?\\.#-]+\.?)+(\/[^\s]*)?$/i;
+        const IMAGE_URL_RE =
+            /(https?|ftp):\/\/(-\.)?([^\s/?\\.#-]+\.?)+(\/[^\s]*)?\.(png|tiff|tif|bmp|jpg|jpeg|gif|eps|webp|bmp|dib|svg)$/i;
 
-        const clipboard = event?.clipboardData?.getData("text");
+        const clipboard = event?.clipboardData?.getData('text');
 
         // checks if selected is already inside link or image markup
         const isSelectedInLinkMarkup = (() => {
@@ -27,7 +28,7 @@ export const linkPasteExtension: Extension = (textarea) => {
                         isBtwOrEq(cursor.selection!.selectionStart + 1, index, index + value.length) ||
                         isBtwOrEq(cursor.selection!.selectionEnd - 1, index, index + value.length)
                     );
-                })
+                }),
             );
         })();
 
@@ -55,9 +56,9 @@ export const linkPasteExtension: Extension = (textarea) => {
         }
     };
 
-    textarea.addEventListener("paste", pasteListener);
+    textarea.addEventListener('paste', pasteListener);
 
-    return () => textarea.removeEventListener("paste", pasteListener);
+    return () => textarea.removeEventListener('paste', pasteListener);
 };
 
 /**
@@ -67,9 +68,9 @@ export const indentExtension: Extension = (textarea) => {
     const mousetrap = Mousetrap(textarea);
     const cursor = new Cursor(textarea);
 
-    mousetrap.bind("tab", (event) => {
+    mousetrap.bind('tab', (event) => {
         event?.preventDefault();
-        const indent = " ".repeat(4);
+        const indent = ' '.repeat(4);
 
         if (!cursor.selection) {
             // If nothing is selected simply add Indent at the current position
@@ -80,9 +81,9 @@ export const indentExtension: Extension = (textarea) => {
         }
     });
 
-    mousetrap.bind("shift+tab", (event) => {
+    mousetrap.bind('shift+tab', (event) => {
         event?.preventDefault();
-        cursor.replaceCurrentLines((line) => line.text.replace(/\s{0,4}/, ""), {
+        cursor.replaceCurrentLines((line) => line.text.replace(/\s{0,4}/, ''), {
             // select lines if something was selected
             selectReplaced: Boolean(cursor.selection),
         });
@@ -97,13 +98,14 @@ export const indentExtension: Extension = (textarea) => {
 export const prefixWrappingExtension: Extension = (textarea, options) => {
     const cursor = new Cursor(textarea);
 
-    const ensureRegExp = (value: RegExp | string) => (value instanceof RegExp ? value : new RegExp(escapeRegExp(value)));
+    const ensureRegExp = (value: RegExp | string) =>
+        value instanceof RegExp ? value : new RegExp(escapeRegExp(value));
     const getLineRegExp = (prefixRe: RegExp) => new RegExp(`^\\s*(${prefixRe.source}).*$`);
 
     const toConfig = (value: PrefixWrappingConfig | string): PrefixWrappingConfig =>
-        typeof value === "string" ? { prefix: value, prefixPattern: ensureRegExp(value) } : value;
+        typeof value === 'string' ? { prefix: value, prefixPattern: ensureRegExp(value) } : value;
 
-    const getIndent = (text: string) => " ".repeat(text.match(/^\s*/)?.[0].length ?? 0);
+    const getIndent = (text: string) => ' '.repeat(text.match(/^\s*/)?.[0].length ?? 0);
 
     const customConfigs = options.customPrefixWrapping.map(toConfig);
 
@@ -115,7 +117,8 @@ export const prefixWrappingExtension: Extension = (textarea, options) => {
         },
         {
             prefixPattern: /(\d+\.){1,2}\s+/,
-            prefix: (line) => getIncrementedOrderedListPrefix(/^(\s*((\d+\.){1,2})\s+.*)$/.exec(line.text)?.[2] ?? "") + " ",
+            prefix: (line) =>
+                getIncrementedOrderedListPrefix(/^(\s*((\d+\.){1,2})\s+.*)$/.exec(line.text)?.[2] ?? '') + ' ',
             shouldBreakIfEmpty: true,
             shouldSaveIndent: true,
         },
@@ -124,7 +127,7 @@ export const prefixWrappingExtension: Extension = (textarea, options) => {
     const configs = [...customConfigs, ...buildInConfigs];
 
     const keydownListener = (event: KeyboardEvent) => {
-        if (event.code !== "Enter") {
+        if (event.code !== 'Enter') {
             return;
         }
 
@@ -135,7 +138,8 @@ export const prefixWrappingExtension: Extension = (textarea, options) => {
         const strictConfigs = configs.map((config) => {
             const prefix = config.prefix instanceof Function ? config.prefix(enteringLine) : config.prefix;
             const pattern = ensureRegExp(config.prefixPattern ?? prefix);
-            const shouldBreak = config.shouldBreakIfEmpty === false ? false : !enteringLine.text.replace(pattern, "").trim();
+            const shouldBreak =
+                config.shouldBreakIfEmpty === false ? false : !enteringLine.text.replace(pattern, '').trim();
             const shouldSaveIndent = config.shouldSaveIndent !== false;
             return { prefix, pattern, shouldBreak, shouldSaveIndent };
         });
@@ -150,29 +154,29 @@ export const prefixWrappingExtension: Extension = (textarea, options) => {
 
         if (shouldBreak) {
             // for a list line without content remove prefix of this line before default behavior
-            cursor.replaceLine(enteringLine.lineNumber, "");
+            cursor.replaceLine(enteringLine.lineNumber, '');
             return;
         }
 
         event?.preventDefault();
 
         // if shouldSaveIndent need to wrap prefix within intent of entering line
-        const indent = shouldSaveIndent ? getIndent(enteringLine.text) : "";
+        const indent = shouldSaveIndent ? getIndent(enteringLine.text) : '';
 
         cursor.insert(`\n${indent}${prefix}${Cursor.MARKER}`);
     };
 
-    textarea.addEventListener("keydown", keydownListener);
+    textarea.addEventListener('keydown', keydownListener);
 
-    return () => textarea.removeEventListener("keydown", keydownListener);
+    return () => textarea.removeEventListener('keydown', keydownListener);
 };
 
 export const properLineRemoveBehaviorExtension: Extension = (textarea) => {
     const cursor = new Cursor(textarea);
     const mousetrap = Mousetrap(textarea);
 
-    mousetrap.bind(metaCombination("backspace"), (event) => {
-        if (cursor.position.line.text === "") {
+    mousetrap.bind(metaCombination('backspace'), (event) => {
+        if (cursor.position.line.text === '') {
             event.preventDefault();
             cursor.replaceLine(cursor.position.line.lineNumber, null);
         }

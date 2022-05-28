@@ -11,80 +11,80 @@ import {
     orderedListCommandHandler,
     strikeThroughCommandHandler,
     unorderedListCommandHandler,
-} from "./handlers";
-import { CommandConfig } from "./types";
-import { metaCombination } from "./utils";
+} from './handlers';
+import { CommandConfig } from './types';
+import { metaCombination } from './utils';
 
 export const buildInCommands: CommandConfig[] = [
     {
-        shortcut: metaCombination("b"),
+        shortcut: metaCombination('b'),
         handler: boldCommandHandler,
-        name: "bold",
+        name: 'bold',
     },
     {
-        shortcut: metaCombination("i"),
+        shortcut: metaCombination('i'),
         handler: italicCommandHandler,
-        name: "italic",
+        name: 'italic',
     },
     {
-        name: "link",
+        name: 'link',
         handler: linkCommandHandler,
     },
     {
-        name: "image",
+        name: 'image',
         handler: imageCommandHandler,
     },
     {
-        name: "unordered-list",
+        name: 'unordered-list',
         handler: unorderedListCommandHandler,
     },
     {
-        name: "ordered-list",
+        name: 'ordered-list',
         handler: orderedListCommandHandler,
     },
     {
-        name: "code-block",
+        name: 'code-block',
         handler: codeBlockCommandHandler,
     },
     {
-        name: "code-inline",
+        name: 'code-inline',
         handler: codeInlineCommandHandler,
     },
     {
-        name: "code",
+        name: 'code',
         handler: codeCommandHandler,
     },
     {
-        name: "block-quotes",
+        name: 'block-quotes',
         handler: blockQuotesCommandHandler,
     },
     {
-        shortcut: [...metaCombination("shift", "x"), "alt+shift+f5"],
-        name: "strike-through",
+        shortcut: [...metaCombination('shift', 'x'), 'alt+shift+f5'],
+        name: 'strike-through',
         handler: strikeThroughCommandHandler,
     },
     {
-        name: "h1",
+        name: 'h1',
         handler: createHeadlineCommandHandler(1),
     },
     {
-        name: "h2",
+        name: 'h2',
         handler: createHeadlineCommandHandler(2),
     },
     {
-        name: "h3",
+        name: 'h3',
         handler: createHeadlineCommandHandler(3),
     },
     {
-        name: "h4",
+        name: 'h4',
         handler: createHeadlineCommandHandler(4),
     },
     {
-        name: "h5",
+        name: 'h5',
         handler: createHeadlineCommandHandler(5),
     },
     {
-        name: "h6",
+        name: 'h6',
         handler: createHeadlineCommandHandler(6),
     },
 ];

@@ -1,26 +1,26 @@
 name: CI
 on: push
 jobs:
-    tests:
-        runs-on: ubuntu-latest
-        steps:
-            # Checkout the Repo
-            - uses: actions/checkout@v2
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the Repo
+      - uses: actions/checkout@v2
 
-            # Install Node 12
-            - name: Setup Node
-              uses: actions/setup-node@v1
-              with:
-                  node-version: 12
+      # Install Node 12
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
 
-            # Install dependencies
-            - name: Install dependencies
-              run: npm install
+      # Install dependencies
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
 
-            # Run tests
-            - name: Run test and generate coverage report
-              run: npm run test:coverage
+      # Run tests
+      - name: Run test and generate coverage report
+        run: npm run test:coverage
 
-            # Upload test to codecov
-            - name: Upload coverage to Codecov
-              uses: codecov/codecov-action@v2
+      # Upload test to codecov
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v2

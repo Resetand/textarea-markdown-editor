@@ -1,17 +1,20 @@
-import { CommandHandler } from "./types";
-import { clamp, escapeRegExp } from "./utils";
-import { Cursor } from "./Cursor.new";
+import { CommandHandler } from './types';
+import { clamp, escapeRegExp } from './utils';
+import { Cursor } from './Cursor.new';
 
 export const boldCommandHandler: CommandHandler = ({ cursor, options: { preferredBoldSyntax, boldPlaceholder } }) => {
     cursor.wrap(preferredBoldSyntax, { placeholder: boldPlaceholder });
 };
 
-export const italicCommandHandler: CommandHandler = ({ cursor, options: { preferredItalicSyntax, italicPlaceholder } }) => {
+export const italicCommandHandler: CommandHandler = ({
+    cursor,
+    options: { preferredItalicSyntax, italicPlaceholder },
+}) => {
     cursor.wrap(preferredItalicSyntax, { placeholder: italicPlaceholder });
 };
 
 export const linkCommandHandler: CommandHandler = ({ options, cursor }) => {
-    const { linkTextPlaceholder, linkUrlPlaceholder: linkUrlPlaceholder } = options;
+    const { linkTextPlaceholder, linkUrlPlaceholder } = options;
 
     const linkText = cursor.selection?.text || linkTextPlaceholder;
     const linkUrl = linkUrlPlaceholder;
@@ -32,7 +35,7 @@ export const orderedListCommandHandler: CommandHandler = ({ cursor }) => {
     const lines = cursor.selection?.lines ?? [cursor.position.line];
     const needUndo = lines.every((line) => re.test(line.text));
 
-    cursor.replaceCurrentLines((line, index) => (needUndo ? line.text.replace(re, "") : `${index + 1}. ${line.text}`), {
+    cursor.replaceCurrentLines((line, index) => (needUndo ? line.text.replace(re, '') : `${index + 1}. ${line.text}`), {
         selectReplaced: Boolean(cursor.selection),
     });
 };
@@ -43,7 +46,7 @@ export const unorderedListCommandHandler: CommandHandler = ({ cursor, options })
     const lines = cursor.selection?.lines ?? [cursor.position.line];
     const needUndo = lines.every((line) => re.test(line.text));
 
-    cursor.replaceCurrentLines((line) => (needUndo ? line.text.replace(re, "") : `${syntax} ${line.text}`), {
+    cursor.replaceCurrentLines((line) => (needUndo ? line.text.replace(re, '') : `${syntax} ${line.text}`), {
         selectReplaced: Boolean(cursor.selection),
     });
 };
@@ -56,11 +59,11 @@ export const codeBlockCommandHandler: CommandHandler = ({ cursor, options: { cod
     // const needNextLineBefore = startLine.startsAt !== 0;
     // const needNextLineAfter = endLine && endLine.lineNumber !== startLine.lineNumber && endLine.endsAt < endLine.text.length;
 
-    cursor.wrap(["```\n", "\n```"], { placeholder: codeBlockPlaceholder });
+    cursor.wrap(['```\n', '\n```'], { placeholder: codeBlockPlaceholder });
 };
 
 export const codeInlineCommandHandler: CommandHandler = ({ cursor, options: { codeInlinePlaceholder } }) => {
-    cursor.wrap("`", { placeholder: codeInlinePlaceholder });
+    cursor.wrap('`', { placeholder: codeInlinePlaceholder });
 };
 
 export const codeCommandHandler: CommandHandler = (ctx) => {
@@ -75,27 +78,30 @@ export const codeCommandHandler: CommandHandler = (ctx) => {
 export const blockQuotesCommandHandler: CommandHandler = ({ cursor, options }) => {
     cursor.replaceCurrentLines((line, index, lines) =>
         [
-            index === 0 ? "> " : "", // quote markup for the first line
-            index === 0 ? Cursor.MARKER : "", // selection opening for the first line
-            line.text.replace(/^>\s+/, "") || (index === 0 ? options.blockQuotesPlaceholder : ""), // line content or placeholder for the first line
-            index === lines.length - 1 ? Cursor.MARKER : "", // selection closing for the last line
-        ].join("")
+            index === 0 ? '> ' : '', // quote markup for the first line
+            index === 0 ? Cursor.MARKER : '', // selection opening for the first line
+            line.text.replace(/^>\s+/, '') || (index === 0 ? options.blockQuotesPlaceholder : ''), // line content or placeholder for the first line
+            index === lines.length - 1 ? Cursor.MARKER : '', // selection closing for the last line
+        ].join(''),
     );
 };
 
 export const strikeThroughCommandHandler: CommandHandler = ({ cursor, options: { strikeThroughPlaceholder } }) => {
-    cursor.wrap("~~", { placeholder: strikeThroughPlaceholder });
+    cursor.wrap('~~', { placeholder: strikeThroughPlaceholder });
 };
 
 export const createHeadlineCommandHandler =
     (level: number): CommandHandler =>
     ({ cursor, options }) => {
-        const prefix = "#".repeat(clamp(level, 1, 6)) + " ";
+        const prefix = '#'.repeat(clamp(level, 1, 6)) + ' ';
         const { headlinePlaceholder } = options;
         const placeholder = headlinePlaceholder instanceof Function ? headlinePlaceholder(level) : headlinePlaceholder;
         const currentLine = cursor.position.line;
         const needUndo = currentLine.text.slice(0, level + 1) === prefix;
-        const content = currentLine.text.replace(/^#{0,6}\s+/, "") || placeholder;
+        const content = currentLine.text.replace(/^#{0,6}\s+/, '') || placeholder;
 
-        cursor.replaceLine(currentLine.lineNumber, `${needUndo ? "" : prefix}${Cursor.MARKER}${content}${Cursor.MARKER}`);
+        cursor.replaceLine(
+            currentLine.lineNumber,
+            `${needUndo ? '' : prefix}${Cursor.MARKER}${content}${Cursor.MARKER}`,
+        );
     };

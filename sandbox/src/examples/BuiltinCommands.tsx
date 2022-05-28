@@ -1,8 +1,8 @@
-import React, { Fragment, useRef, useState } from "react";
-import TextareaMarkdown, { TextareaMarkdownRef, BUILT_IN_COMMANDS } from "textarea-markdown-editor";
+import React, { Fragment, useRef, useState } from 'react';
+import TextareaMarkdown, { TextareaMarkdownRef, BUILT_IN_COMMANDS } from 'textarea-markdown-editor';
 
 function App() {
-    const [value, setValue] = useState("");
+    const [value, setValue] = useState('');
     const ref = useRef<TextareaMarkdownRef>(null);
 
     return (
