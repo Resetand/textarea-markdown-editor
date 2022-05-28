@@ -36,16 +36,16 @@ Essentially this library just provides the textarea Component. You can choose an
 ## Usage
 
 ```tsx
-import React, { Fragment, useRef, useState } from "react";
-import TextareaMarkdown, { TextareaMarkdownRef } from "textarea-markdown-editor";
+import React, { Fragment, useRef, useState } from 'react';
+import TextareaMarkdown, { TextareaMarkdownRef } from 'textarea-markdown-editor';
 
 function App() {
-    const [value, setValue] = useState("");
+    const [value, setValue] = useState('');
     const ref = useRef<TextareaMarkdownRef>(null);
 
     return (
         <Fragment>
-            <button onClick={() => ref.current?.trigger("bold")}>Bold</button>
+            <button onClick={() => ref.current?.trigger('bold')}>Bold</button>
             <br />
             <TextareaMarkdown ref={ref} value={value} onChange={(e) => setValue(e.target.value)} />
         </Fragment>
@@ -60,12 +60,12 @@ function App() {
 You can use custom textarea Component. Just wrap it with `TextareaMarkdown.Wrapper`
 
 ```tsx
-import React, { useRef, useState } from "react";
-import TextareaMarkdown, { TextareaMarkdownRef } from "textarea-markdown-editor";
-import TextareaAutosize from "react-textarea-autosize";
+import React, { useRef, useState } from 'react';
+import TextareaMarkdown, { TextareaMarkdownRef } from 'textarea-markdown-editor';
+import TextareaAutosize from 'react-textarea-autosize';
 
 function App() {
-    const [value, setValue] = useState("");
+    const [value, setValue] = useState('');
     const ref = useRef<TextareaMarkdownRef>(null);
 
     return (
@@ -83,8 +83,8 @@ function App() {
 You can specify or overwrite shortcuts for built-in commands or create your own
 
 ```tsx
-import React, { useRef, useState } from "react";
-import TextareaMarkdown, { CommandHandler, TextareaMarkdownRef } from "textarea-markdown-editor";
+import React, { useRef, useState } from 'react';
+import TextareaMarkdown, { CommandHandler, TextareaMarkdownRef } from 'textarea-markdown-editor';
 
 /** Inserts 🙃 at the current position and select it */
 const emojiCommandHandler: CommandHandler = ({ cursor }) => {
@@ -93,12 +93,12 @@ const emojiCommandHandler: CommandHandler = ({ cursor }) => {
 };
 
 function App() {
-    const [value, setValue] = useState("");
+    const [value, setValue] = useState('');
     const ref = useRef<TextareaMarkdownRef>(null);
 
     return (
         <Fragment>
-            <button onClick={() => ref.current?.trigger("insert-emoji")}>Insert 🙃</button>
+            <button onClick={() => ref.current?.trigger('insert-emoji')}>Insert 🙃</button>
             <br />
             <TextareaMarkdown
                 ref={ref}
@@ -106,12 +106,12 @@ function App() {
                 onChange={(e) => setValue(e.target.value)}
                 commands={[
                     {
-                        name: "code",
-                        shortcut: ["command+/", "ctrl+/"],
+                        name: 'code',
+                        shortcut: ['command+/', 'ctrl+/'],
                         shortcutPreventDefault: true,
                     },
                     {
-                        name: "insert-emoji",
+                        name: 'insert-emoji',
                         handler: emojiCommandHandler,
                     },
                 ]}
@@ -129,9 +129,9 @@ It is great solution with simple and intuitive api. You can read more about comb
 ### `β` Usage without `react`
 
 ```js
-import { bootstrapTextareaMarkdown } from "textarea-markdown-editor/dist/bootstrap";
+import { bootstrapTextareaMarkdown } from 'textarea-markdown-editor/dist/bootstrap';
 
-const textarea = document.querySelector("textarea"); // element can be obtained from anywhere, this is just an example;
+const textarea = document.querySelector('textarea'); // element can be obtained from anywhere, this is just an example;
 
 const { trigger, dispose } = bootstrapTextareaMarkdown(textarea, {
     options: {}, // optional options config
@@ -158,14 +158,22 @@ const { trigger, dispose } = bootstrapTextareaMarkdown(textarea, {
 -   [TextareaMarkdownOptions](#textareamarkdownoptions)
 -   [TextareaMarkdownRef](#textareamarkdownref)
 
-#### `TextareaMarkdownProps`
+### `TextareaMarkdownProps`
 
 ℹ️ `TextareaMarkdown` accepts all props which native textarea supports
 
-| Property     | Description                     | Type                                                  |
+#### `options` [`TextareaMarkdownOptions`](#textareamarkdownoptions)
+
+Options config
+
+#### `commands` [`Command`](#command)[]
+
+Array of commands configuration
+
+<!-- | Property     | Description                     | Type                                                  |
 | ------------ | ------------------------------- | ----------------------------------------------------- |
 | **options**  | Options config                  | [`TextareaMarkdownOptions`](#textareamarkdownoptions) |
-| **commands** | Array of commands configuration | [`Command`](#command)[]                               |
+| **commands** | Array of commands configuration | [`Command`](#command)[]                               | -->
 
 ---
 
@@ -255,4 +263,5 @@ export type CommandHandlerContext = {
 
 ```typescript
 trigger: (command: string) => void;
+cursor: Cursor
 ```

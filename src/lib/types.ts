@@ -1,5 +1,5 @@
-import { Cursor, Line } from "./Cursor.new";
-import React, { ComponentPropsWithoutRef, ForwardRefExoticComponent, ReactElement, RefAttributes } from "react";
+import { Cursor, Line } from './Cursor.new';
+import { ComponentPropsWithoutRef, ForwardRefExoticComponent, ReactElement, RefAttributes } from 'react';
 
 /** https://github.com/Microsoft/TypeScript/issues/29729 */
 export type LiteralUnion<T extends U, U = string> = T | (Pick<U, never> & { _?: never });
@@ -8,23 +8,23 @@ type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 export const BUILT_IN_COMMANDS = [
-    "bold",
-    "italic",
-    "strike-through",
-    "h1",
-    "h2",
-    "h3",
-    "h4",
-    "h5",
-    "h6",
-    "unordered-list",
-    "ordered-list",
-    "code-block",
-    "code-inline",
-    "code",
-    "link",
-    "image",
-    "block-quotes",
+    'bold',
+    'italic',
+    'strike-through',
+    'h1',
+    'h2',
+    'h3',
+    'h4',
+    'h5',
+    'h6',
+    'unordered-list',
+    'ordered-list',
+    'code-block',
+    'code-inline',
+    'code',
+    'link',
+    'image',
+    'block-quotes',
 ] as const;
 
 export type CommandType = LiteralUnion<typeof BUILT_IN_COMMANDS[number], string>;
@@ -33,11 +33,13 @@ export type CommandHandlerContext = {
     textarea: HTMLTextAreaElement;
     cursor: Cursor;
     keyEvent?: KeyboardEvent;
-    clipboardEvent?: ClipboardEvent;
     options: TextareaMarkdownOptions;
 };
 
-export type CommandHandler = (context: CommandHandlerContext) => void | Promise<void>;
+export type CommandHandler<TArgs extends unknown[] = any[]> = (
+    context: CommandHandlerContext,
+    ...args: Partial<TArgs>
+) => void;
 
 export type CommandConfig<TType extends CommandType = CommandType> = {
     /** Handler function for custom commands */
@@ -65,13 +67,13 @@ export type PrefixWrappingConfig = {
 
 export type TextareaMarkdownOptions = {
     /** Preferred unordered list prefix `default: '-'` */
-    preferredUnorderedListSyntax: "-" | "*" | "+";
+    preferredUnorderedListSyntax: '-' | '*' | '+';
 
     /** Preferred bold wrap syntax `default: '**'` */
-    preferredBoldSyntax: "**" | "__";
+    preferredBoldSyntax: '**' | '__';
 
     /** Preferred italic wrap syntax `default: '*'` */
-    preferredItalicSyntax: "*" | "_";
+    preferredItalicSyntax: '*' | '_';
 
     /** Will handle `tab`/`shift+tab` keystrokes, on which will insert/remove indentation instead of the default behavior `default:true` */
     enableIndentExtension: boolean;
@@ -129,9 +131,9 @@ export type TextareaMarkdownOptions = {
 };
 
 export const defaultTextareaMarkdownOptions: TextareaMarkdownOptions = {
-    preferredUnorderedListSyntax: "-",
-    preferredBoldSyntax: "**",
-    preferredItalicSyntax: "*",
+    preferredUnorderedListSyntax: '-',
+    preferredBoldSyntax: '**',
+    preferredItalicSyntax: '*',
 
     enableIndentExtension: true,
     enableLinkPasteExtension: true,
@@ -139,24 +141,24 @@ export const defaultTextareaMarkdownOptions: TextareaMarkdownOptions = {
     enableProperLineRemoveBehaviorExtension: true,
     customPrefixWrapping: [],
 
-    boldPlaceholder: "bold",
-    italicPlaceholder: "italic",
-    strikeThroughPlaceholder: "strike through",
-    codeInlinePlaceholder: "code",
-    codeBlockPlaceholder: "code block",
-    orderedListPlaceholder: "ordered list",
-    unorderedListPlaceholder: "unordered list",
+    boldPlaceholder: 'bold',
+    italicPlaceholder: 'italic',
+    strikeThroughPlaceholder: 'strike through',
+    codeInlinePlaceholder: 'code',
+    codeBlockPlaceholder: 'code block',
+    orderedListPlaceholder: 'ordered list',
+    unorderedListPlaceholder: 'unordered list',
     headlinePlaceholder: (lvl) => `headline ${lvl}`,
-    blockQuotesPlaceholder: "quote",
-    linkTextPlaceholder: "example",
-    linkUrlPlaceholder: "url",
-    imageTextPlaceholder: "example",
-    imageUrlPlaceholder: "image.png",
+    blockQuotesPlaceholder: 'quote',
+    linkTextPlaceholder: 'example',
+    linkUrlPlaceholder: 'url',
+    imageTextPlaceholder: 'example',
+    imageUrlPlaceholder: 'image.png',
 };
 
-export type CommandTrigger = (command: CommandType, keyEvent?: KeyboardEvent) => void;
+export type CommandTrigger = <TArgs extends unknown[] = unknown[]>(command: CommandType, ...args: TArgs) => void;
 
-export type Command = PartialBy<CommandConfig, "handler">;
+export type Command = PartialBy<CommandConfig, 'handler'>;
 
 export type Extension = (textarea: HTMLTextAreaElement, options: TextareaMarkdownOptions) => void | (() => void);
 
@@ -167,10 +169,14 @@ export type TextareaMarkdownConfig = {
 
 export type TextareaMarkdownRef = HTMLTextAreaElement & {
     trigger: CommandTrigger;
+    cursor: Cursor;
 };
 
-export type TextareaMarkdownProps = Omit<TextareaMarkdownConfig & ComponentPropsWithoutRef<"textarea">, "children">;
+export type TextareaMarkdownProps = Omit<TextareaMarkdownConfig & ComponentPropsWithoutRef<'textarea'>, 'children'>;
 
-export interface TextareaMarkdownComponent extends ForwardRefExoticComponent<TextareaMarkdownProps & RefAttributes<TextareaMarkdownRef>> {
-    Wrapper: ForwardRefExoticComponent<TextareaMarkdownConfig & RefAttributes<TextareaMarkdownRef> & { children: ReactElement }>;
+export interface TextareaMarkdownComponent
+    extends ForwardRefExoticComponent<TextareaMarkdownProps & RefAttributes<TextareaMarkdownRef>> {
+    Wrapper: ForwardRefExoticComponent<
+        TextareaMarkdownConfig & RefAttributes<TextareaMarkdownRef> & { children: ReactElement }
+    >;
 }

@@ -1,6 +1,6 @@
-import { isBtwOrEq, changeInputValue } from "./utils";
+import { isBtwOrEq, fireInput } from './utils';
 
-export type SelectionDirectionType = "backward" | "forward" | "none";
+export type SelectionDirectionType = 'backward' | 'forward' | 'none';
 
 export type Selection = {
     /**
@@ -49,7 +49,7 @@ export type WrapOptions = {
     placeholder?: string;
 };
 
-type Marker = string & { __brand: "Cursor marker" };
+type Marker = string & { __brand: 'Cursor marker' };
 const MARKER = `\u0000` as Marker;
 
 /**
@@ -69,11 +69,11 @@ export class Cursor {
 
     /** @returns {Line[]} information about each line of text */
     public get lines(): Line[] {
-        return this.value.split("\n").reduce<Line[]>((lines, content, index) => {
+        return this.value.split('\n').reduce<Line[]>((lines, content, index) => {
             const lineNumber = index + 1;
             const isFirstLine = index === 0;
-            const startsAt = lines.map((l) => l.text).join("\n").length + (isFirstLine ? 0 : 1);
-            const endsAt = startsAt + (content + "\n").length - 1;
+            const startsAt = lines.map((l) => l.text).join('\n').length + (isFirstLine ? 0 : 1);
+            const endsAt = startsAt + (content + '\n').length - 1;
             return [...lines, { text: content, lineNumber, startsAt, endsAt }];
         }, []);
     }
@@ -93,7 +93,7 @@ export class Cursor {
                 // line inside selection from left
                 isBtwOrEq(line.startsAt, selectionStart, selectionEnd) ||
                 // line inside selection from right
-                isBtwOrEq(line.endsAt, selectionStart, selectionEnd)
+                isBtwOrEq(line.endsAt, selectionStart, selectionEnd),
         );
 
         if (selectionStart === selectionEnd) {
@@ -114,10 +114,10 @@ export class Cursor {
         const data = this.execRaw(text);
 
         // TODO check if there are other way to make it work
-        if (process.env.NODE_ENV === "test") {
+        if (process.env.NODE_ENV === 'test') {
             this.element.value = data.text;
         } else {
-            changeInputValue(this.element, data.text);
+            fireInput(this.element, data.text);
         }
 
         if (data.selectionStart === null && data.selectionEnd === null) {
@@ -157,7 +157,10 @@ export class Cursor {
 
     private insertAtCursor(content: string) {
         const cursorAt = this.position.cursorAt;
-        const newValue = this.value.slice(0, cursorAt) + this.normalizeSelection(content) + this.value.slice(cursorAt, this.value.length);
+        const newValue =
+            this.value.slice(0, cursorAt) +
+            this.normalizeSelection(content) +
+            this.value.slice(cursorAt, this.value.length);
         this.setValue(newValue);
     }
 
@@ -170,7 +173,7 @@ export class Cursor {
      */
     public replaceCurrentLines(
         callback: (this: Cursor, line: Line, index: number, currentLines: Line[]) => string | null,
-        options?: { selectReplaced?: boolean }
+        options?: { selectReplaced?: boolean },
     ) {
         const { selectReplaced = false } = options ?? {};
         const selectedLines = this.selection?.lines ?? [this.lineAt(this.position.line.lineNumber)!];
@@ -178,20 +181,26 @@ export class Cursor {
         const content = selectedLines
             .map((line, index) => callback.call(this, line, index, selectedLines))
             .filter((ctn) => ctn !== null) // delete line if null
-            .join("\n");
+            .join('\n');
 
         const start = selectedLines[0].startsAt;
         const end = selectedLines[selectedLines.length - 1].endsAt;
         const newValue =
-            this.value.slice(0, start) + this.normalizeSelection(content, selectReplaced ? "SELECT_ALL" : "TO_END") + this.value.slice(end);
+            this.value.slice(0, start) +
+            this.normalizeSelection(content, selectReplaced ? 'SELECT_ALL' : 'TO_END') +
+            this.value.slice(end);
 
         this.setValue(newValue);
     }
 
+    /**
+     * TODO
+     * replace
+     */
     public replaceLine(lineNumber: number, content: string | null) {
         const line = this.lineAt(lineNumber);
         if (!line) {
-            console.error("Unknown line number: " + lineNumber);
+            console.error('Unknown line number: ' + lineNumber);
             return;
         }
         const start = line.startsAt;
@@ -205,8 +214,11 @@ export class Cursor {
         this.setValue(newValue);
     }
 
+    /**
+     * Wraps selection inside markup
+     */
     public wrap(markup: string | [string, string], options?: WrapOptions) {
-        const { unwrap = true, placeholder = "" } = options ?? {};
+        const { unwrap = true, placeholder = '' } = options ?? {};
         const [prefix, suffix] = Array.isArray(markup) ? markup : [markup, markup];
         const text = this.value;
         const start = this.selection?.selectionStart ?? this.position.cursorAt;
@@ -219,7 +231,7 @@ export class Cursor {
                 text.slice(start, end),
                 MARKER,
                 text.slice(end + suffix.length),
-            ].join("");
+            ].join('');
 
             this.setValue(content);
             return;
@@ -234,7 +246,7 @@ export class Cursor {
             MARKER,
             suffix,
             text.slice(end),
-        ].join("");
+        ].join('');
 
         this.setValue(content);
     }
@@ -254,28 +266,33 @@ export class Cursor {
     }
 
     public select(options: SelectRange | SelectRelative) {
-        const isRange = (opt: SelectRange | SelectRelative): opt is SelectRange => opt.hasOwnProperty("start") || opt.hasOwnProperty("end");
+        const isRange = (opt: SelectRange | SelectRelative): opt is SelectRange => {
+            return (
+                Object.prototype.hasOwnProperty.call(opt, 'start') && Object.prototype.hasOwnProperty.call(opt, 'end')
+            );
+        };
+
         if (isRange(options)) {
             this.element.setSelectionRange(options.start, options.end);
         } else {
             this.element.setSelectionRange(
                 this.element.selectionStart + options.fromCurrentStart,
-                this.element.selectionEnd + options.fromCurrentEnd
+                this.element.selectionEnd + options.fromCurrentEnd,
             );
         }
     }
 
-    private normalizeSelection(text: string, defaultBehavior: "TO_START" | "TO_END" | "SELECT_ALL" = "TO_END") {
+    private normalizeSelection(text: string, defaultBehavior: 'TO_START' | 'TO_END' | 'SELECT_ALL' = 'TO_END') {
         if (text.includes(MARKER)) {
             return text;
         }
 
         switch (defaultBehavior) {
-            case "TO_START":
+            case 'TO_START':
                 return `${MARKER}${text}`;
-            case "TO_END":
+            case 'TO_END':
                 return `${text}${MARKER}`;
-            case "SELECT_ALL":
+            case 'SELECT_ALL':
                 return `${MARKER}${text}${MARKER}`;
         }
     }
@@ -283,7 +300,7 @@ export class Cursor {
     private execRaw(sourceText: string) {
         const fIndex = sourceText.indexOf(MARKER);
         const lIndex = sourceText.lastIndexOf(MARKER);
-        const text = sourceText.replace(new RegExp(MARKER, "g"), "");
+        const text = sourceText.replace(new RegExp(MARKER, 'g'), '');
         let selectionStart: null | number = null;
         let selectionEnd: null | number = null;
 

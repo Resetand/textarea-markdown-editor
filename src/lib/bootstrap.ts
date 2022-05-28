@@ -1,7 +1,12 @@
-import Mousetrap from "mousetrap";
-import { buildInCommands } from "./commands";
-import { Cursor } from "./Cursor.new";
-import { properLineRemoveBehaviorExtension, indentExtension, linkPasteExtension, prefixWrappingExtension } from "./extensions";
+import Mousetrap from 'mousetrap';
+import { buildInCommands } from './commands';
+import { Cursor } from './Cursor.new';
+import {
+    properLineRemoveBehaviorExtension,
+    indentExtension,
+    linkPasteExtension,
+    prefixWrappingExtension,
+} from './extensions';
 import {
     Command,
     CommandConfig,
@@ -9,8 +14,8 @@ import {
     defaultTextareaMarkdownOptions,
     TextareaMarkdownOptions,
     BUILT_IN_COMMANDS,
-} from "./types";
-import { findLast } from "./utils";
+} from './types';
+import { findLast } from './utils';
 
 type BootstrapConfig = {
     commands?: Command[];
@@ -24,8 +29,12 @@ export const bootstrapTextareaMarkdown = (textarea: HTMLTextAreaElement, config:
     const commands = mergedCommandsList(config.commands);
     const options = { ...defaultTextareaMarkdownOptions, ...config.options };
 
-    const trigger: CommandTrigger = async (name, keyEvent) => {
+    const trigger: CommandTrigger = (name, ...args) => {
+        // eslint-disable-next-line no-console
+        console.log('args', args);
         const command = findLast(commands, (c) => c.name === name);
+        const keyEvent = isKeyboardArg(args[0]) ? args[0].keyEvent : undefined;
+        const handlerArgs = isKeyboardArg(args[0]) ? [] : args;
 
         if (!command) {
             throw new TypeError(`Command with name "${name}" is not defined`);
@@ -37,7 +46,7 @@ export const bootstrapTextareaMarkdown = (textarea: HTMLTextAreaElement, config:
         }
 
         textarea.focus();
-        command.handler({ textarea, keyEvent, options, cursor });
+        command.handler({ textarea, keyEvent, options, cursor }, ...(handlerArgs ?? []));
     };
 
     // subscribe on shortcuts
@@ -47,7 +56,7 @@ export const bootstrapTextareaMarkdown = (textarea: HTMLTextAreaElement, config:
                 if (command.shortcutPreventDefault) {
                     keyEvent.preventDefault();
                 }
-                trigger(command.name, keyEvent);
+                trigger(command.name, { __keyboard: true, keyEvent });
             });
         }
     });
@@ -69,7 +78,12 @@ export const bootstrapTextareaMarkdown = (textarea: HTMLTextAreaElement, config:
     return {
         trigger,
         dispose,
+        cursor,
     };
+};
+
+const isKeyboardArg = <T>(arg: T): arg is T & { __keyboard: true; keyEvent: KeyboardEvent } => {
+    return arg !== null && typeof arg === 'object' && (arg as any).__keyboard === true;
 };
 
 const mergedCommandsList = (customCommands: Command[] = []) => {
@@ -89,7 +103,7 @@ const mergedCommandsList = (customCommands: Command[] = []) => {
             commands[commandIndex] = overrides;
         } else {
             if (!command.handler || !(command.handler instanceof Function)) {
-                throw new TypeError("Custom command should have a handler function");
+                throw new TypeError('Custom command should have a handler function');
             }
             commands.push(command as any);
         }

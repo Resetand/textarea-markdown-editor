@@ -35,9 +35,16 @@
     "@types/node": "17.0.33",
     "@types/react": "18.0.9",
     "@types/react-dom": "18.0.4",
+    "@typescript-eslint/eslint-plugin": "^5.26.0",
+    "@typescript-eslint/parser": "^5.26.0",
     "common-tags": "1.8.2",
+    "eslint": "^8.16.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-config-react-app": "^7.0.1",
+    "husky": "^4.3.8",
     "jest": "28.1.0",
     "jest-environment-jsdom": "28.1.0",
+    "lint-staged": "10.5.4",
     "npm-watch": "^0.11.0",
     "react": "18.1.0",
     "react-dom": "18.1.0",
@@ -45,18 +52,18 @@
     "typescript": "4.6.4"
   },
   "scripts": {
+    "lint": "eslint --max-warnings=0 --ext=ts,tsx . --fix ",
     "build": "tsc",
     "build:watch": "npm-watch build",
     "test": "./node_modules/.bin/jest --colors",
     "test:coverage": "npm run test -- --coverage",
-    "prepublish": "npm run test -- --watchAll=false && npm run build",
+    "prepublish": "npm run lint && npm run test -- --watchAll=false && npm run build",
     "start-sandbox": "npm run build; npm --prefix sandbox i -f; npm link sandbox/node_modules/react; npm --prefix sandbox run start"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   },
   "watch": {
     "build": {
