@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useRef, useState } from 'react';
-import TextareaMarkdown, { Command, CommandType, TextareaMarkdownOptions, TextareaMarkdownRef } from '../lib';
+import TextareaMarkdown, { Command, CommandType, Cursor, TextareaMarkdownOptions, TextareaMarkdownRef } from '../lib';
 import { act, render } from '@testing-library/react';
 
 import { stripIndent } from 'common-tags';
@@ -500,8 +500,8 @@ describe('md formatting common cases', () => {
                 );
             };
 
-            const rendered = render(<Example />);
-            const textarea = rendered.container.querySelector('textarea')!;
+            const view = render(<Example />);
+            const textarea = view.container.querySelector('textarea')!;
 
             textarea.focus();
 
@@ -516,10 +516,87 @@ describe('md formatting common cases', () => {
     });
 });
 
+// https://github.com/facebook/jest/issues/6329
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function mockFn<TReturn, TArgs extends any[]>(implementation?: (...args: TArgs) => TReturn): jest.Mock<TReturn, TArgs> {
+    const fn = jest.fn(implementation);
+    // This patches https://github.com/facebook/jest/issues/6329
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (fn as any).__proto__ = Function.prototype;
+    return fn;
+}
 describe('TextareaMarkdown component usage', () => {
     test('should render textarea', () => {
-        const rendered = render(<TextareaMarkdown />);
-        expect(rendered.container.firstElementChild).toBeInstanceOf(HTMLTextAreaElement);
+        const view = render(<TextareaMarkdown />);
+        expect(view.container.firstElementChild).toBeInstanceOf(HTMLTextAreaElement);
+    });
+
+    test('should enhance textarea ref', () => {
+        let mdRef: React.RefObject<TextareaMarkdownRef>;
+
+        const Example = () => {
+            mdRef = useRef<TextareaMarkdownRef>(null);
+            return <TextareaMarkdown ref={mdRef} />;
+        };
+
+        render(<Example />);
+
+        expect(mdRef!.current).toBeInstanceOf(HTMLTextAreaElement);
+        expect(mdRef!.current?.cursor).toBeInstanceOf(Cursor);
+        expect(mdRef!.current?.trigger).toEqual(expect.any(Function));
+    });
+
+    test('should trigger command with args', () => {
+        const handler = mockFn();
+        let mdRef: React.RefObject<TextareaMarkdownRef>;
+
+        const Example = () => {
+            mdRef = useRef<TextareaMarkdownRef>(null);
+            return <TextareaMarkdown commands={[{ name: 'test', handler }]} ref={mdRef} />;
+        };
+
+        render(<Example />);
+
+        act(() => {
+            mdRef.current?.trigger('test', 'example_arg1', ['example_arg2']);
+        });
+
+        expect(handler).toBeCalledWith(
+            expect.objectContaining({
+                textarea: expect.any(HTMLTextAreaElement),
+                cursor: expect.any(Cursor),
+                keyEvent: undefined,
+                options: expect.any(Object),
+            }),
+            'example_arg1',
+            ['example_arg2'],
+        );
+    });
+
+    // TODO shortcuts firing doesn't work for Mousetrap.js
+    test.skip('should trigger command via shortcuts', async () => {
+        const handler = mockFn();
+
+        render(
+            <TextareaMarkdown
+                commands={[
+                    {
+                        name: 'test',
+                        handler,
+                        shortcut: 'tab',
+                        shortcutPreventDefault: true,
+                    },
+                ]}
+            />,
+        );
+
+        await userEvent.keyboard('{Tab}');
+
+        expect(handler).toBeCalledWith(
+            expect.objectContaining({
+                keyEvent: expect.any(KeyboardEvent),
+            }),
+        );
     });
 
     test('should throw an error if using invalid children with TextareaMarkdown.Wrapper', () => {
@@ -552,8 +629,8 @@ describe('TextareaMarkdown component usage', () => {
         ];
 
         for (const validChild of validChildren) {
-            const rendered = render(<TextareaMarkdown.Wrapper>{validChild}</TextareaMarkdown.Wrapper>);
-            expect(rendered.container.querySelector('textarea')).toBeInstanceOf(HTMLTextAreaElement);
+            const view = render(<TextareaMarkdown.Wrapper>{validChild}</TextareaMarkdown.Wrapper>);
+            expect(view.container.querySelector('textarea')).toBeInstanceOf(HTMLTextAreaElement);
         }
     });
 });
