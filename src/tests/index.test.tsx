@@ -444,10 +444,45 @@ const testCases: TestCase[] = [
         expected: `[https://example.com<>://example.com)`,
     },
     {
+        description: 'should prevent link paste handling if text is already inside link markup #3',
+        input: `some text before [title](https://example.com), and [other link](<url>)`,
+        act: () => userEvent.paste('https://example.com'),
+        expected: `some text before [title](https://example.com), and [other link](https://example.com<>)`,
+    },
+    {
         description: 'should handle image link paste event',
         input: `<image>`,
         act: () => userEvent.paste('https://example/image.png'),
         expected: `![image](https://example/image.png) <>`,
+    },
+
+    // @see https://github.com/Resetand/textarea-markdown-editor/issues/12
+    {
+        description: 'should paste link which contains dashes in domain',
+        input: `<>`,
+        act: () =>
+            userEvent.paste(
+                'https://xxxxx999xxxxxxxxx99x9x9xx9999xxxx9x9x999xx9x9x-dev.s3.eu-west-2.amazonaws.com/public/xxxxxx99-9xxx-xxxx-9xx9-x9x9xxx999xx',
+            ),
+        expected: `https://xxxxx999xxxxxxxxx99x9x9xx9999xxxx9x9x999xx9x9x-dev.s3.eu-west-2.amazonaws.com/public/xxxxxx99-9xxx-xxxx-9xx9-x9x9xxx999xx<>`,
+    },
+    {
+        description: 'should paste link which contains dashes in domain',
+        input: `<text>`,
+        act: () =>
+            userEvent.paste(
+                'https://xxxxx999xxxxxxxxx99x9x9xx9999xxxx9x9x999xx9x9x-dev.s3.eu-west-2.amazonaws.com/public/xxxxxx99-9xxx-xxxx-9xx9-x9x9xxx999xx',
+            ),
+        expected: `[text](https://xxxxx999xxxxxxxxx99x9x9xx9999xxxx9x9x999xx9x9x-dev.s3.eu-west-2.amazonaws.com/public/xxxxxx99-9xxx-xxxx-9xx9-x9x9xxx999xx) <>`,
+    },
+    {
+        description: 'should paste link which contains dashes in domain #2',
+        input: `<>`,
+        act: () =>
+            userEvent.paste(
+                'https://xxxxx999xxxxxxxxx99x9x9xx9999xxxx9x9x999xx9x9x-dev.s3.eu-west-2.amazonaws.com/public/xxxxxx99-9xxx-xxxx-9xx9-x9x9xxx999xx',
+            ),
+        expected: `https://xxxxx999xxxxxxxxx99x9x9xx9999xxxx9x9x999xx9x9x-dev.s3.eu-west-2.amazonaws.com/public/xxxxxx99-9xxx-xxxx-9xx9-x9x9xxx999xx<>`,
     },
 
     // ! Custom command

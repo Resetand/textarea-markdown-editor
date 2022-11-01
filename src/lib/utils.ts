@@ -171,3 +171,15 @@ export const findTextArea = (element: Element | null) => {
 export function escapeRegExp(str: string) {
     return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
+
+export const isURL = (value: unknown): value is string => {
+    try {
+        return typeof value === 'string' && Boolean(new URL(value));
+    } catch (error) {
+        return false;
+    }
+};
+
+export const isImageURL = (value: unknown): value is string => {
+    return isURL(value) && value.match(/\.(jpeg|jpg|gif|png)$/) !== null;
+};
