@@ -58,7 +58,8 @@
     "test": "./node_modules/.bin/jest --colors",
     "test:coverage": "npm run test -- --coverage",
     "prepublish": "npm run lint && npm run test -- --watchAll=false && npm run build",
-    "start-sandbox": "npm run build; npm --prefix sandbox i -f; npm link sandbox/node_modules/react; npm --prefix sandbox run start"
+    "start-sandbox": "npm run build; npm --prefix sandbox i -f; npm link sandbox/node_modules/react; npm --prefix sandbox run start",
+    "prepare": "husky install"
   },
   "watch": {
     "build": {
