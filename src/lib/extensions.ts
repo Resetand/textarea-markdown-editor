@@ -1,7 +1,7 @@
 import Mousetrap from 'mousetrap';
 import { Cursor } from './Cursor.new';
 import { Extension, PrefixWrappingConfig } from './types';
-import { escapeRegExp, getIncrementedOrderedListPrefix, isBtwOrEq, metaCombination } from './utils';
+import { escapeRegExp, getIncrementedOrderedListPrefix, isBtwOrEq, isImageURL, isURL, metaCombination } from './utils';
 
 /**
  * Handle the paste event, if the pasted text is a URL and something is selected, it will be converted to link/image markup.
@@ -10,10 +10,7 @@ export const linkPasteExtension: Extension = (textarea) => {
     const cursor = new Cursor(textarea);
 
     const pasteListener = (event: ClipboardEvent) => {
-        const LINK_MARKUP_RE = /\[.*\]\(.*\)/g;
-        const URL_RE = /(https?|ftp):\/\/(-\.)?([^\s/?\\.#-]+\.?)+(\/[^\s]*)?$/i;
-        const IMAGE_URL_RE =
-            /(https?|ftp):\/\/(-\.)?([^\s/?\\.#-]+\.?)+(\/[^\s]*)?\.(png|tiff|tif|bmp|jpg|jpeg|gif|eps|webp|bmp|dib|svg)$/i;
+        const LINK_MARKUP_RE = /\[[^\]]*\]\([^)]*\)/g;
 
         const clipboard = event?.clipboardData?.getData('text');
 
@@ -22,13 +19,16 @@ export const linkPasteExtension: Extension = (textarea) => {
             if (!cursor.selection) {
                 return false;
             }
-            return Boolean(
-                LINK_MARKUP_RE.exec(cursor.value)?.some((value, index) => {
-                    return (
-                        isBtwOrEq(cursor.selection!.selectionStart + 1, index, index + value.length) ||
-                        isBtwOrEq(cursor.selection!.selectionEnd - 1, index, index + value.length)
-                    );
-                }),
+            // get all links markup ranges
+            const linkMarkupRangeList = Array.from(cursor.value.matchAll(LINK_MARKUP_RE)).map(
+                (match) => [match.index!, match.index! + match[0].length] as const,
+            );
+
+            // check if selected text is inside any of those ranges
+            return linkMarkupRangeList.some(
+                ([start, end]) =>
+                    isBtwOrEq(cursor.selection!.selectionStart, start, end) ||
+                    isBtwOrEq(cursor.selection!.selectionEnd, start, end),
             );
         })();
 
@@ -36,7 +36,7 @@ export const linkPasteExtension: Extension = (textarea) => {
             // make sure there is something on the clipboard
             !clipboard ||
             // make sure there is url on the clipboard
-            !URL_RE.test(clipboard) ||
+            !isURL(clipboard) ||
             // make sure there something is selected
             !cursor.selection ||
             // make sure that selected is not inside link/image markup
@@ -49,7 +49,7 @@ export const linkPasteExtension: Extension = (textarea) => {
         event?.preventDefault();
 
         // workaround to avoid code copypaste
-        if (IMAGE_URL_RE.test(clipboard)) {
+        if (isImageURL(clipboard)) {
             cursor.insert(`![${cursor.selection.text}](${clipboard}) ${Cursor.MARKER}`);
         } else {
             cursor.insert(`[${cursor.selection.text}](${clipboard}) ${Cursor.MARKER}`);
