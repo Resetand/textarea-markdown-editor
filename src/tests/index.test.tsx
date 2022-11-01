@@ -450,6 +450,12 @@ const testCases: TestCase[] = [
         expected: `some text before [title](https://example.com), and [other link](https://example.com<>)`,
     },
     {
+        description: 'should prevent link paste handling if selected text is a URL',
+        input: `some text before <https://example.com>`,
+        act: () => userEvent.paste('https://other-url.com'),
+        expected: `some text before https://other-url.com<>`,
+    },
+    {
         description: 'should handle image link paste event',
         input: `<image>`,
         act: () => userEvent.paste('https://example/image.png'),

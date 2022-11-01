@@ -39,6 +39,8 @@ export const linkPasteExtension: Extension = (textarea) => {
             !isURL(clipboard) ||
             // make sure there something is selected
             !cursor.selection ||
+            // make selected text is not a URL
+            isURL(cursor.selection.text) ||
             // make sure that selected is not inside link/image markup
             isSelectedInLinkMarkup
         ) {
