@@ -186,3 +186,36 @@ export const properLineRemoveBehaviorExtension: Extension = (textarea) => {
 
     return () => mousetrap.reset();
 };
+
+export const orderedListAutoCorrectExtension: Extension = (textarea) => {
+    const cursor = new Cursor(textarea);
+
+    // eg: 1)content | 1) content | 1.1)content
+    const INVALID_PATTERN = /^\s*(\d+(\.\d+)?\.?)\)\s*/;
+
+    const handler = (event: KeyboardEvent) => {
+        if (event.code !== 'Enter') {
+            return;
+        }
+
+        const lineText = cursor.position.line.text;
+        const match = lineText.match(INVALID_PATTERN);
+
+        if (!match) {
+            return;
+        }
+
+        event?.preventDefault();
+
+        const indent = ' '.repeat(lineText.match(/^\s*/)?.[0].length ?? 0);
+        const orderPrefix = match[1];
+        const newLineContent = `${indent}${orderPrefix}. ${lineText.slice(match[0].length)}`;
+
+        cursor.replaceLine(cursor.position.line.lineNumber, newLineContent);
+
+        textarea.dispatchEvent(new KeyboardEvent('keydown', event));
+    };
+
+    textarea.addEventListener('keydown', handler);
+    return () => textarea.removeEventListener('keydown', handler);
+};

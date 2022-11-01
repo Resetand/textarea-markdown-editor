@@ -491,6 +491,32 @@ const testCases: TestCase[] = [
         expected: `https://xxxxx999xxxxxxxxx99x9x9xx9999xxxx9x9x999xx9x9x-dev.s3.eu-west-2.amazonaws.com/public/xxxxxx99-9xxx-xxxx-9xx9-x9x9xxx999xx<>`,
     },
 
+    // ! Extension: list-wrapping
+    {
+        options: { enableOrderedListAutoCorrectExtension: true },
+        description: 'should auto correct invalid ordered list pattern',
+        input: stripIndent`
+            1) option 1<>`,
+
+        act: () => userEvent.keyboard('{enter}'),
+
+        expected: stripIndent`
+            1. option 1
+            2. <>`,
+    },
+    {
+        options: { enableOrderedListAutoCorrectExtension: true },
+        description: 'should auto correct invalid ordered list pattern #2',
+        input: stripIndent`
+            1.1) option 1<>`,
+
+        act: () => userEvent.keyboard('{enter}'),
+
+        expected: stripIndent`
+            1.1. option 1
+            1.2. <>`,
+    },
+
     // ! Custom command
     {
         description: 'should insert and wrap emoji (custom command)',

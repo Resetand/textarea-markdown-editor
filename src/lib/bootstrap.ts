@@ -6,6 +6,7 @@ import {
     indentExtension,
     linkPasteExtension,
     prefixWrappingExtension,
+    orderedListAutoCorrectExtension,
 } from './extensions';
 import {
     Command,
@@ -30,8 +31,6 @@ export const bootstrapTextareaMarkdown = (textarea: HTMLTextAreaElement, config:
     const options = { ...defaultTextareaMarkdownOptions, ...config.options };
 
     const trigger: CommandTrigger = (name, ...args) => {
-        // eslint-disable-next-line no-console
-        console.log('args', args);
         const command = findLast(commands, (c) => c.name === name);
         const keyEvent = isKeyboardArg(args[0]) ? args[0].keyEvent : undefined;
         const handlerArgs = isKeyboardArg(args[0]) ? [] : args;
@@ -67,6 +66,7 @@ export const bootstrapTextareaMarkdown = (textarea: HTMLTextAreaElement, config:
         options.enableLinkPasteExtension && linkPasteExtension(textarea, options),
         options.enablePrefixWrappingExtension && prefixWrappingExtension(textarea, options),
         options.enableProperLineRemoveBehaviorExtension && properLineRemoveBehaviorExtension(textarea, options),
+        options.enableOrderedListAutoCorrectExtension && orderedListAutoCorrectExtension(textarea, options),
     ];
 
     // unsubscribe from all listeners

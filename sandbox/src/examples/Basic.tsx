@@ -9,7 +9,12 @@ function App() {
         <Fragment>
             <button onClick={() => ref.current?.trigger('bold')}>Bold</button>
             <br />
-            <TextareaMarkdown ref={ref} value={value} onChange={(e) => setValue(e.target.value)} />
+            <TextareaMarkdown
+                options={{ enableOrderedListAutoCorrectExtension: true }}
+                ref={ref}
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+            />
         </Fragment>
     );
 }

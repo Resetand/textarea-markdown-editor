@@ -87,6 +87,14 @@ export type TextareaMarkdownOptions = {
     /** Will handle `enter` keystroke, on which will wrap current list sequence to a new line if needed `default:true` */
     enablePrefixWrappingExtension: boolean;
 
+    /**
+     * Will handle `enter` keystroke, on which will autocorrect invalid ordered list patterns `default:false`
+     * @example
+     * 1) some text -> 1. some text
+     * 1.1) some text -> 1.1. some text
+     * */
+    enableOrderedListAutoCorrectExtension: boolean;
+
     /** Array of custom prefixes, that need to be wrapped. (Will not work with `enablePrefixWrappingExtension:false`) */
     customPrefixWrapping: (PrefixWrappingConfig | string)[];
 
@@ -139,6 +147,7 @@ export const defaultTextareaMarkdownOptions: TextareaMarkdownOptions = {
     enableLinkPasteExtension: true,
     enablePrefixWrappingExtension: true,
     enableProperLineRemoveBehaviorExtension: true,
+    enableOrderedListAutoCorrectExtension: false,
     customPrefixWrapping: [],
 
     boldPlaceholder: 'bold',
