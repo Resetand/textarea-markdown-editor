@@ -1,5 +1,5 @@
-import React, { Fragment, useRef, useState } from "react";
-import TextareaMarkdown, { CommandHandler, TextareaMarkdownRef } from "textarea-markdown-editor";
+import React, { Fragment, useRef, useState } from 'react';
+import TextareaMarkdown, { CommandHandler, TextareaMarkdownRef } from 'textarea-markdown-editor';
 
 /** Inserts 🙃 at the current position and select it */
 const emojiCommandHandler: CommandHandler = ({ cursor }) => {
@@ -8,7 +8,7 @@ const emojiCommandHandler: CommandHandler = ({ cursor }) => {
 };
 
 function App() {
-    const [value, setValue] = useState("");
+    const [value, setValue] = useState('');
     const ref = useRef<TextareaMarkdownRef>(null);
 
     return (
@@ -21,12 +21,12 @@ function App() {
                 onChange={(e) => setValue(e.target.value)}
                 commands={[
                     {
-                        name: "code",
-                        shortcut: ["command+/", "ctrl+/"],
+                        name: 'code',
+                        shortcut: ['command+/', 'ctrl+/'],
                         shortcutPreventDefault: true,
                     },
                     {
-                        name: "insert-emoji",
+                        name: 'insert-emoji',
                         handler: emojiCommandHandler,
                     },
                 ]}

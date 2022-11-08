@@ -10,10 +10,14 @@
 /artifacts
 
 # production
-/build
-/dist
+build
+**/*/build
 
-/sandbox/node_modules
+dist
+**/*/dist
+
+node_modules
+**/*/node_modules
 
 
 # misc
