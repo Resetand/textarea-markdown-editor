@@ -13,10 +13,11 @@
     "formatting",
     "shortcuts"
   ],
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
   "files": [
-    "dist/**/*"
+    "dist"
   ],
   "peerDependencies": {
     "react": "^16.8.0 || ^17.0.0 || || ^18.0.0",
@@ -53,8 +54,9 @@
   },
   "scripts": {
     "lint": "eslint --max-warnings=0 --ext=ts,tsx . --fix ",
-    "build": "tsc",
-    "build:watch": "npm-watch build",
+    "build": "npm run build:esm && npm run build:cjs",
+    "build:esm": "tsc",
+    "build:cjs": "tsc --module commonjs --outDir dist/cjs",
     "test": "./node_modules/.bin/jest --colors",
     "test:coverage": "npm run test -- --coverage",
     "prepublish": "npm run lint && npm run test -- --watchAll=false && npm run build",
