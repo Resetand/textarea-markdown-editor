@@ -1,7 +1,16 @@
-import Mousetrap from 'mousetrap';
-import { Cursor } from './Cursor.new';
 import { Extension, PrefixWrappingConfig } from './types';
-import { escapeRegExp, getIncrementedOrderedListPrefix, isBtwOrEq, isImageURL, isURL, metaCombination } from './utils';
+import {
+    LimitedStack,
+    escapeRegExp,
+    getIncrementedOrderedListPrefix,
+    isBtwOrEq,
+    isImageURL,
+    isURL,
+    metaCombination,
+} from './utils';
+
+import { Cursor } from './Cursor.new';
+import Mousetrap from 'mousetrap';
 
 /**
  * Handle the paste event, if the pasted text is a URL and something is selected, it will be converted to link/image markup.
@@ -218,4 +227,43 @@ export const orderedListAutoCorrectExtension: Extension = (textarea) => {
 
     textarea.addEventListener('keydown', handler);
     return () => textarea.removeEventListener('keydown', handler);
+};
+
+type SlackState = {
+    value: string;
+    selectionEnd: number;
+    selectionStart: number;
+};
+export const fixUndoBehaviorExtension: Extension = (textarea) => {
+    const stack = new LimitedStack<SlackState>(200);
+
+    const cursor = new Cursor(textarea);
+    const mousetrap = Mousetrap(textarea);
+
+    textarea.addEventListener('input', () => {
+        if (textarea.value === stack.peek()?.value) {
+            return;
+        }
+
+        stack.push({
+            value: textarea.value,
+            selectionStart: textarea.selectionStart,
+            selectionEnd: textarea.selectionEnd,
+        });
+    });
+
+    mousetrap.bind(metaCombination('z'), (event) => {
+        event.preventDefault();
+
+        const prevState = stack.pop2() ?? {
+            value: '',
+            selectionEnd: 0,
+            selectionStart: 0,
+        };
+
+        cursor.setValue(prevState.value);
+
+        textarea.selectionStart = prevState.selectionStart;
+        textarea.selectionEnd = prevState.selectionEnd;
+    });
 };
