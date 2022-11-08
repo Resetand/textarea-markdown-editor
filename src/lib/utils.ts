@@ -183,3 +183,26 @@ export const isURL = (value: unknown): value is string => {
 export const isImageURL = (value: unknown): value is string => {
     return isURL(value) && value.match(/\.(jpeg|jpg|gif|png)$/) !== null;
 };
+
+export class LimitedStack<T> {
+    private stack: T[] = [];
+
+    constructor(private limit: number) {}
+
+    public push(item: T) {
+        this.stack = [...this.stack, item].slice(-this.limit);
+    }
+
+    public peek() {
+        return this.stack[this.stack.length - 1];
+    }
+
+    public pop() {
+        return this.stack.pop();
+    }
+
+    public pop2() {
+        this.stack.pop();
+        return this.stack.pop();
+    }
+}
