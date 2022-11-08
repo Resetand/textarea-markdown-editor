@@ -183,24 +183,3 @@ export const isURL = (value: unknown): value is string => {
 export const isImageURL = (value: unknown): value is string => {
     return isURL(value) && value.match(/\.(jpeg|jpg|gif|png)$/) !== null;
 };
-
-export class HistoryStack<T> {
-    private items: T[] = [];
-
-    constructor(private limit: number) {}
-
-    public push(item: T) {
-        this.items.push(item);
-        if (this.items.length >= this.limit) {
-            this.items.splice(0, 1);
-        }
-    }
-
-    public peek(n: number) {
-        return this.items[this.items.length - n];
-    }
-
-    public pop() {
-        return this.items.pop();
-    }
-}

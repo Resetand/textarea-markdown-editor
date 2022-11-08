@@ -1,13 +1,5 @@
 import { Extension, PrefixWrappingConfig } from './types';
-import {
-    HistoryStack,
-    escapeRegExp,
-    getIncrementedOrderedListPrefix,
-    isBtwOrEq,
-    isImageURL,
-    isURL,
-    metaCombination,
-} from './utils';
+import { escapeRegExp, getIncrementedOrderedListPrefix, isBtwOrEq, isImageURL, isURL, metaCombination } from './utils';
 
 import { Cursor } from './Cursor.new';
 import Mousetrap from 'mousetrap';
@@ -227,54 +219,4 @@ export const orderedListAutoCorrectExtension: Extension = (textarea) => {
 
     textarea.addEventListener('keydown', handler);
     return () => textarea.removeEventListener('keydown', handler);
-};
-
-type Snapshot = {
-    value: string;
-    selectionEnd: number;
-    selectionStart: number;
-};
-const toSnapshot = (textarea: HTMLTextAreaElement) => ({
-    value: textarea.value,
-    selectionStart: textarea.selectionStart,
-    selectionEnd: textarea.selectionEnd,
-});
-export const fixUndoBehaviorExtension: Extension = (textarea) => {
-    const stack = new HistoryStack<Snapshot>(200);
-
-    stack.push(toSnapshot(textarea));
-
-    const cursor = new Cursor(textarea);
-    const mousetrap = Mousetrap(textarea);
-
-    let skipEvent = false;
-
-    textarea.addEventListener('input', () => {
-        if (skipEvent) {
-            skipEvent = false;
-            return;
-        }
-
-        if (textarea.value === stack.peek(1)?.value) {
-            return;
-        }
-
-        stack.push(toSnapshot(textarea));
-    });
-
-    mousetrap.bind(metaCombination('z'), (event) => {
-        event.preventDefault();
-        const previous = stack.peek(2);
-
-        if (!previous) {
-            return;
-        }
-
-        skipEvent = true;
-        stack.pop(); // remove current snapshot
-        cursor.setValue(previous.value);
-
-        textarea.selectionStart = previous.selectionStart;
-        textarea.selectionEnd = previous.selectionEnd;
-    });
 };

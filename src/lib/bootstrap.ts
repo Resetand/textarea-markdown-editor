@@ -7,7 +7,6 @@ import {
     linkPasteExtension,
     prefixWrappingExtension,
     orderedListAutoCorrectExtension,
-    fixUndoBehaviorExtension,
 } from './extensions';
 import {
     Command,
@@ -63,7 +62,6 @@ export const bootstrapTextareaMarkdown = (textarea: HTMLTextAreaElement, config:
 
     // bootstrap extensions if enabled, extension can optionally returns a cleanup function, which will be called inside dispose
     const extensions = [
-        fixUndoBehaviorExtension(textarea, options),
         options.enableIndentExtension && indentExtension(textarea, options),
         options.enableLinkPasteExtension && linkPasteExtension(textarea, options),
         options.enablePrefixWrappingExtension && prefixWrappingExtension(textarea, options),
