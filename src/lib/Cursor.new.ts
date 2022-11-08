@@ -69,12 +69,25 @@ export class Cursor {
 
     /** @returns {Line[]} information about each line of text */
     public get lines(): Line[] {
-        return this.value.split('\n').reduce<Line[]>((lines, content, index) => {
+        let currentLength = 0;
+        return this.value.split('\n').reduce<Line[]>((lines, content, index, arr) => {
             const lineNumber = index + 1;
-            const isFirstLine = index === 0;
-            const startsAt = lines.map((l) => l.text).join('\n').length + (isFirstLine ? 0 : 1);
-            const endsAt = startsAt + (content + '\n').length - 1;
-            return [...lines, { text: content, lineNumber, startsAt, endsAt }];
+            const isLastLine = index === arr.length - 1;
+            const lineLength = content.length + Number(!isLastLine);
+
+            const startsAt = currentLength;
+            const endsAt = startsAt + lineLength - Number(!isLastLine);
+
+            currentLength += lineLength;
+
+            lines.push({
+                text: content,
+                lineNumber,
+                startsAt,
+                endsAt,
+            });
+
+            return lines;
         }, []);
     }
 
@@ -297,10 +310,12 @@ export class Cursor {
         }
     }
 
-    private execRaw(sourceText: string) {
-        const fIndex = sourceText.indexOf(MARKER);
-        const lIndex = sourceText.lastIndexOf(MARKER);
-        const text = sourceText.replace(new RegExp(MARKER, 'g'), '');
+    private execRaw(text: string) {
+        const fIndex = text.indexOf(MARKER);
+        const lIndex = text.lastIndexOf(MARKER);
+        if (fIndex !== -1 && lIndex !== -1) {
+            text = text.replace(new RegExp(MARKER, 'g'), '');
+        }
         let selectionStart: null | number = null;
         let selectionEnd: null | number = null;
 
