@@ -1,6 +1,6 @@
 import { Extension, PrefixWrappingConfig } from './types';
 import {
-    LimitedStack,
+    HistoryStack,
     escapeRegExp,
     getIncrementedOrderedListPrefix,
     isBtwOrEq,
@@ -229,41 +229,52 @@ export const orderedListAutoCorrectExtension: Extension = (textarea) => {
     return () => textarea.removeEventListener('keydown', handler);
 };
 
-type TAState = {
+type Snapshot = {
     value: string;
     selectionEnd: number;
     selectionStart: number;
 };
+const toSnapshot = (textarea: HTMLTextAreaElement) => ({
+    value: textarea.value,
+    selectionStart: textarea.selectionStart,
+    selectionEnd: textarea.selectionEnd,
+});
 export const fixUndoBehaviorExtension: Extension = (textarea) => {
-    const stack = new LimitedStack<TAState>(200);
+    const stack = new HistoryStack<Snapshot>(200);
+
+    stack.push(toSnapshot(textarea));
 
     const cursor = new Cursor(textarea);
     const mousetrap = Mousetrap(textarea);
 
+    let skipEvent = false;
+
     textarea.addEventListener('input', () => {
-        if (textarea.value === stack.peek()?.value) {
+        if (skipEvent) {
+            skipEvent = false;
             return;
         }
 
-        stack.push({
-            value: textarea.value,
-            selectionStart: textarea.selectionStart,
-            selectionEnd: textarea.selectionEnd,
-        });
+        if (textarea.value === stack.peek(1)?.value) {
+            return;
+        }
+
+        stack.push(toSnapshot(textarea));
     });
 
     mousetrap.bind(metaCombination('z'), (event) => {
         event.preventDefault();
+        const previous = stack.peek(2);
 
-        const prevState = stack.pop2() ?? {
-            value: '',
-            selectionEnd: 0,
-            selectionStart: 0,
-        };
+        if (!previous) {
+            return;
+        }
 
-        cursor.setValue(prevState.value);
+        skipEvent = true;
+        stack.pop(); // remove current snapshot
+        cursor.setValue(previous.value);
 
-        textarea.selectionStart = prevState.selectionStart;
-        textarea.selectionEnd = prevState.selectionEnd;
+        textarea.selectionStart = previous.selectionStart;
+        textarea.selectionEnd = previous.selectionEnd;
     });
 };
