@@ -229,13 +229,13 @@ export const orderedListAutoCorrectExtension: Extension = (textarea) => {
     return () => textarea.removeEventListener('keydown', handler);
 };
 
-type SlackState = {
+type TAState = {
     value: string;
     selectionEnd: number;
     selectionStart: number;
 };
 export const fixUndoBehaviorExtension: Extension = (textarea) => {
-    const stack = new LimitedStack<SlackState>(200);
+    const stack = new LimitedStack<TAState>(200);
 
     const cursor = new Cursor(textarea);
     const mousetrap = Mousetrap(textarea);
