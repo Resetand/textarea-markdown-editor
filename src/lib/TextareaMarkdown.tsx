@@ -36,7 +36,7 @@ export const TextareaMarkdown = forwardRef<TextareaMarkdownRef, TextareaMarkdown
  */
 const TextareaMarkdownWrapper = forwardRef<TextareaMarkdownRef, TextareaMarkdownWrapperProps>(
     ({ children, commands, options }, ref) => {
-        const textareaRef = useRef<HTMLTextAreaElement>();
+        const textareaRef = useRef<HTMLTextAreaElement | null>(null);
         const holderElementRef = useRef<HTMLDivElement | null>(null);
 
         useEffect(() => {
@@ -74,7 +74,7 @@ type UseBootstrapOptions = {
     ref: React.Ref<TextareaMarkdownRef>;
 
     // current HTMLTextAreaElement ref
-    textareaRef: RefObject<HTMLTextAreaElement | null | undefined>;
+    textareaRef: RefObject<HTMLTextAreaElement | null>;
 };
 
 const useBootstrap = ({ commands, options, ref, textareaRef }: UseBootstrapOptions) => {

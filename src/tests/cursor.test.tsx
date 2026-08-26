@@ -1,4 +1,4 @@
-import { Cursor, Line } from '../lib/Cursor.new';
+import { Cursor, Line } from '../lib/Cursor';
 
 const createTextArea = (content: string | undefined) => {
     const el = document.createElement('textarea');

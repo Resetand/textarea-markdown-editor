@@ -1,19 +1,45 @@
 # Textarea Markdown
 
-[![CI status][github-action-image]][github-action-url] [![codecov][codecov-image]][codecov-url] [![NPM version][npm-image]][npm-url]
+This is a fork of https://github.com/Resetand/textarea-markdown-editor
 
-[npm-image]: http://img.shields.io/npm/v/textarea-markdown-editor.svg
-[npm-url]: http://npmjs.org/package/textarea-markdown-editor
-[github-action-image]: https://github.com/Resetand/textarea-markdown-editor/actions/workflows/ci.yaml/badge.svg
-[github-action-url]: https://github.com/Resetand/textarea-markdown-editor/actions/workflows/ci.yaml
-[codecov-image]: https://codecov.io/gh/Resetand/textarea-markdown-editor/branch/master/graph/badge.svg?token=OBD8KR7Y98
-[codecov-url]: https://codecov.io/gh/Resetand/textarea-markdown-editor
+The aim is to trim fix some of the quirks with the scroll position, there will be breaking changes, no compatibility planned.
 
-```bash
-npm install textarea-markdown-editor
+## Differences from original
+
+### Features
+
+-  Use `*` by default, both types are supported on enter
+-  Textarea reacts reliably to text insertion, no need to invoke any magic to keep the scroll position
+
+### Code
+
+- No more CommmonJS, only ESM
+- Dependencies were updated, added tests for missing cases
+
+### Webpack end ESM
+
+In case Webpack is not happy with the imports from the package, you may need
+to define the exception in the webpack config:
+
 ```
+  let config = {
+    // ....
 
-> There are some breaking changes since v1.0.0 released, checkout the [release note](https://github.com/Resetand/textarea-markdown-editor/releases/tag/v1.0.0)
+    // custom loaders configuration
+    module: {
+      rules: [
+        {
+          test: /\.m?js$/,
+          include: /node_modules\/@can3p\/headless-mde/,
+          resolve: {
+            fullySpecified: false,
+          },
+        },
+        // ..
+      ]
+    },
+  };
+```
 
 ---
 
@@ -37,7 +63,7 @@ Essentially this library just provides the textarea Component. You can choose an
 
 ```tsx
 import React, { Fragment, useRef, useState } from 'react';
-import TextareaMarkdown, { TextareaMarkdownRef } from 'textarea-markdown-editor';
+import TextareaMarkdown, { TextareaMarkdownRef } from '@can3p/headless-mde';
 
 function App() {
     const [value, setValue] = useState('');
@@ -61,7 +87,7 @@ You can use custom textarea Component. Just wrap it with `TextareaMarkdown.Wrapp
 
 ```tsx
 import React, { useRef, useState } from 'react';
-import TextareaMarkdown, { TextareaMarkdownRef } from 'textarea-markdown-editor';
+import TextareaMarkdown, { TextareaMarkdownRef } from '@can3p/headless-mde';
 import TextareaAutosize from 'react-textarea-autosize';
 
 function App() {
@@ -84,7 +110,7 @@ You can specify or overwrite shortcuts for built-in commands or create your own
 
 ```tsx
 import React, { useRef, useState } from 'react';
-import TextareaMarkdown, { CommandHandler, TextareaMarkdownRef } from 'textarea-markdown-editor';
+import TextareaMarkdown, { CommandHandler, TextareaMarkdownRef } from '@can3p/headless-mde';
 
 /** Inserts 🙃 at the current position and select it */
 const emojiCommandHandler: CommandHandler = ({ cursor }) => {
@@ -126,10 +152,12 @@ function App() {
 ℹ️ [Mousetrap.js](https://craig.is/killing/mice) is used under the hood for shortcuts handling.
 It is great solution with simple and intuitive api. You can read more about combination in the documentation
 
-### `β` Usage without `react`
+### Usage without React
+
+For projects that don't use React, import from the headless entry point:
 
 ```js
-import { bootstrapTextareaMarkdown } from 'textarea-markdown-editor/dist/bootstrap';
+import { bootstrapTextareaMarkdown } from '@can3p/headless-mde/headless';
 
 const textarea = document.querySelector('textarea'); // element can be obtained from anywhere, this is just an example;
 
@@ -139,9 +167,7 @@ const { trigger, dispose } = bootstrapTextareaMarkdown(textarea, {
 });
 ```
 
-ℹ️ Checkout [sandbox example](https://codesandbox.io/s/vanila-textarea-markdown-editor-5q6bqb?file=/src/index.js)
-
-ℹ️ Although this is possible, this feature is more of a workaround, since the library was originally written to be used with react, your package manager probably will warn you about missing peer-dependencies
+ℹ️ The headless entry point has no React dependencies, so you won't get peer dependency warnings.
 
 ---
 
@@ -265,3 +291,27 @@ export type CommandHandlerContext = {
 trigger: (command: string) => void;
 cursor: Cursor
 ```
+
+## Development
+
+### Publishing Releases
+
+This package is automatically published to npm when a GitHub release is created.
+
+Setup was done by following trusted publisher guide: https://docs.npmjs.com/trusted-publishers
+
+#### Creating a release
+
+Just create a GitHub release with a version tag (e.g., `v1.0.0`). The workflow will:
+
+1. Extract the version from the tag
+2. Update `package.json` automatically
+3. Run lint, tests, and build
+4. Commit the version bump and move the tag to point to it
+5. Publish to npm
+
+No manual version bumping required! The release tag will always point to the commit with the correct version in `package.json`.
+
+## Acknowledgements
+
+All praise goes to https://github.com/Resetand !

@@ -26,8 +26,8 @@ describe('utils', () => {
     test('should change input value and emit event (without textarea.setRangeText support)', () => {
         const textarea = createTextArea('initial');
 
-        // @ts-ignore
-        textarea.setRangeText = undefined; // emulate missing
+        // @ts-expect-error emulate missing setRangeText
+        textarea.setRangeText = undefined;
 
         const handleInput = jest.fn();
 

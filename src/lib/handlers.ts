@@ -1,6 +1,6 @@
 import { CommandHandler } from './types';
 import { clamp, escapeRegExp } from './utils';
-import { Cursor } from './Cursor.new';
+import { Cursor } from './Cursor';
 
 export const boldCommandHandler: CommandHandler = ({ cursor, options: { preferredBoldSyntax, boldPlaceholder } }) => {
     cursor.wrap(preferredBoldSyntax, { placeholder: boldPlaceholder });
@@ -52,13 +52,6 @@ export const unorderedListCommandHandler: CommandHandler = ({ cursor, options })
 };
 
 export const codeBlockCommandHandler: CommandHandler = ({ cursor, options: { codeBlockPlaceholder } }) => {
-    // TODO handle cases when selection start/end located not on start/end of a line
-    // TODO: commend code doesn't works properly
-    // const startLine = cursor.selection?.lines[0] ?? cursor.position.line;
-    // const endLine = cursor.selection?.lines[0];
-    // const needNextLineBefore = startLine.startsAt !== 0;
-    // const needNextLineAfter = endLine && endLine.lineNumber !== startLine.lineNumber && endLine.endsAt < endLine.text.length;
-
     cursor.wrap(['```\n', '\n```'], { placeholder: codeBlockPlaceholder });
 };
 

@@ -1,10 +1,9 @@
-import { Cursor, Line } from './Cursor.new';
+import { Cursor, Line } from './Cursor';
 import { ComponentPropsWithoutRef, ForwardRefExoticComponent, ReactElement, RefAttributes } from 'react';
 
 /** https://github.com/Microsoft/TypeScript/issues/29729 */
 export type LiteralUnion<T extends U, U = string> = T | (Pick<U, never> & { _?: never });
 
-type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 export const BUILT_IN_COMMANDS = [
@@ -45,7 +44,7 @@ export type CommandConfig<TType extends CommandType = CommandType> = {
     /** Handler function for custom commands */
     handler: CommandHandler;
 
-    /** Shortcut combinations ([Mousetrap.js](https://craig.is/killing/mice)) */
+    /** Shortcut combinations (e.g., 'command+b', 'ctrl+i', 'shift+tab') */
     shortcut?: string | string[];
 
     /** Toggle key event prevent `default:false` */
@@ -139,7 +138,7 @@ export type TextareaMarkdownOptions = {
 };
 
 export const defaultTextareaMarkdownOptions: TextareaMarkdownOptions = {
-    preferredUnorderedListSyntax: '-',
+    preferredUnorderedListSyntax: '*',
     preferredBoldSyntax: '**',
     preferredItalicSyntax: '*',
 

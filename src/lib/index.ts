@@ -13,5 +13,5 @@ export type {
     TextareaMarkdownConfig,
 } from './types';
 
-export { Cursor } from './Cursor.new';
+export { Cursor } from './Cursor';
 export { TextareaMarkdown as default } from './TextareaMarkdown';

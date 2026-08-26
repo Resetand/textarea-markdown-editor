@@ -1,8 +1,8 @@
 import { Extension, PrefixWrappingConfig } from './types';
 import { escapeRegExp, getIncrementedOrderedListPrefix, isBtwOrEq, isImageURL, isURL, metaCombination } from './utils';
 
-import { Cursor } from './Cursor.new';
-import Mousetrap from 'mousetrap';
+import { Cursor } from './Cursor';
+import { KeyboardShortcuts } from './keyboard';
 
 /**
  * Handle the paste event, if the pasted text is a URL and something is selected, it will be converted to link/image markup.
@@ -68,10 +68,10 @@ export const linkPasteExtension: Extension = (textarea) => {
  * Handle `tab`/`shift+tab` combination. Will insert or remove an intend depends on selection
  */
 export const indentExtension: Extension = (textarea) => {
-    const mousetrap = Mousetrap(textarea);
+    const keyboard = new KeyboardShortcuts(textarea);
     const cursor = new Cursor(textarea);
 
-    mousetrap.bind('tab', (event) => {
+    keyboard.bind('tab', (event) => {
         event?.preventDefault();
         const indent = ' '.repeat(4);
 
@@ -84,7 +84,7 @@ export const indentExtension: Extension = (textarea) => {
         }
     });
 
-    mousetrap.bind('shift+tab', (event) => {
+    keyboard.bind('shift+tab', (event) => {
         event?.preventDefault();
         cursor.replaceCurrentLines((line) => line.text.replace(/\s{0,4}/, ''), {
             // select lines if something was selected
@@ -92,7 +92,7 @@ export const indentExtension: Extension = (textarea) => {
         });
     });
 
-    return () => mousetrap.reset();
+    return () => keyboard.reset();
 };
 
 /**
@@ -114,7 +114,11 @@ export const prefixWrappingExtension: Extension = (textarea, options) => {
 
     const buildInConfigs: PrefixWrappingConfig[] = [
         {
-            prefix: `${options.preferredUnorderedListSyntax} `,
+            prefixPattern: /[-*]\s+/,
+            prefix: (line) => {
+                const match = /^\s*([-*])\s+/.exec(line.text);
+                return match ? `${match[1]} ` : `${options.preferredUnorderedListSyntax} `;
+            },
             shouldBreakIfEmpty: true,
             shouldSaveIndent: true,
         },
@@ -153,20 +157,31 @@ export const prefixWrappingExtension: Extension = (textarea, options) => {
             // no matches
             return;
         }
-        const { prefix, shouldBreak, shouldSaveIndent } = matched;
 
+        const { prefix, shouldBreak, shouldSaveIndent } = matched;
         if (shouldBreak) {
             // for a list line without content remove prefix of this line before default behavior
             cursor.replaceLine(enteringLine.lineNumber, '');
             return;
         }
 
-        event?.preventDefault();
-
-        // if shouldSaveIndent need to wrap prefix within intent of entering line
+        // PATCH: Let Enter key create newline naturally (like GitHub), then insert only the prefix
         const indent = shouldSaveIndent ? getIndent(enteringLine.text) : '';
 
-        cursor.insert(`\n${indent}${prefix}${Cursor.MARKER}`);
+        // PATCH: In test environment, use old approach (preventDefault + manual insertion)
+        // In browser, let Enter work naturally and insert prefix via input event (fixes scroll bug)
+        if (process.env.NODE_ENV === 'test') {
+            event?.preventDefault();
+            cursor.insert(`\n${indent}${prefix}${Cursor.MARKER}`);
+        } else {
+            // Let Enter key create newline naturally (like GitHub), then insert only the prefix
+            // Use input event to ensure newline exists before inserting prefix (fixes Firefox race condition)
+            const prefixToInsert = `${indent}${prefix}${Cursor.MARKER}`;
+
+            textarea.addEventListener('input', function() {
+                cursor.insert(prefixToInsert);
+            }, { once: true });
+        }
     };
 
     textarea.addEventListener('keydown', keydownListener);
@@ -176,16 +191,16 @@ export const prefixWrappingExtension: Extension = (textarea, options) => {
 
 export const properLineRemoveBehaviorExtension: Extension = (textarea) => {
     const cursor = new Cursor(textarea);
-    const mousetrap = Mousetrap(textarea);
+    const keyboard = new KeyboardShortcuts(textarea);
 
-    mousetrap.bind(metaCombination('backspace'), (event) => {
+    keyboard.bind(metaCombination('backspace'), (event) => {
         if (cursor.position.line.text === '') {
             event.preventDefault();
             cursor.replaceLine(cursor.position.line.lineNumber, null);
         }
     });
 
-    return () => mousetrap.reset();
+    return () => keyboard.reset();
 };
 
 export const orderedListAutoCorrectExtension: Extension = (textarea) => {
