@@ -135,6 +135,9 @@ export class Cursor {
      * if some content is selected will replace it
      */
     public insert(content: string) {
+        // Ensure textarea is focused - required for execCommand and preserving selection
+        this.element.focus();
+
         const normalizedContent = this.normalizeSelection(content);
         if (!this.selection) {
             this.insertAtCursor(content);
@@ -217,6 +220,11 @@ export class Cursor {
 
         // Preserve scroll position
         const savedScrollTop = this.element.scrollTop;
+
+        // Ensure textarea is focused - required for execCommand in Firefox
+        // especially after focus loss from file dialogs
+        this.element.focus();
+
         fireInput(this.element, replacement, searchStart, searchEnd);
         this.element.scrollTop = savedScrollTop;
     }
@@ -232,6 +240,9 @@ export class Cursor {
         callback: (this: Cursor, line: Line, index: number, currentLines: Line[]) => string | null,
         options?: { selectReplaced?: boolean },
     ) {
+        // Ensure textarea is focused - required for execCommand and preserving selection
+        this.element.focus();
+
         const { selectReplaced = false } = options ?? {};
         const selectedLines = this.selection?.lines ?? [this.lineAt(this.position.line.lineNumber)!];
 
@@ -259,6 +270,9 @@ export class Cursor {
      * replace
      */
     public replaceLine(lineNumber: number, content: string | null) {
+        // Ensure textarea is focused - required for execCommand and preserving selection
+        this.element.focus();
+
         const line = this.lineAt(lineNumber);
         if (!line) {
             console.error('Unknown line number: ' + lineNumber);
@@ -294,6 +308,9 @@ export class Cursor {
      * Wraps selection inside markup
      */
     public wrap(markup: string | [string, string], options?: WrapOptions) {
+        // Ensure textarea is focused - required for execCommand and preserving selection
+        this.element.focus();
+
         const { unwrap = true, placeholder = '' } = options ?? {};
         const [prefix, suffix] = Array.isArray(markup) ? markup : [markup, markup];
         const text = this.value;

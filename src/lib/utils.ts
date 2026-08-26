@@ -51,14 +51,15 @@ export function fireInput(
 
     let isSuccess = false;
 
-    // Try execCommand directly - the contentEditable trick breaks Firefox's
-    // internal editing state after focus loss (e.g., file upload dialogs)
+    // Try execCommand with contentEditable trick (GitHub's approach)
     if (document.execCommand) {
+        input.contentEditable = 'true';
         try {
             isSuccess = document.execCommand('insertText', false, value);
         } catch {
             isSuccess = false;
         }
+        input.contentEditable = 'false';
     }
 
     // Fallback: manual value manipulation
