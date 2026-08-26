@@ -471,10 +471,17 @@ const testCases: TestCase[] = [
 
     // ! Extension: link/image paste
     {
-        description: 'should handle link paste event',
-        input: `<title>`,
-        act: () => userEvent.paste('https://example.com'),
-        expected: `[title](https://example.com) <>`,
+        description: 'should create a markdown link when a URL is pasted over selected text',
+        input: `This is a nice <text>`,
+        act: () => userEvent.paste('http://website.com'),
+        expected: `This is a nice [text](http://website.com) <>`,
+    },
+    {
+        description: 'should use default paste behavior when link paste extension is disabled',
+        options: { enableLinkPasteExtension: false },
+        input: `This is a nice <text>`,
+        act: () => userEvent.paste('http://website.com'),
+        expected: `This is a nice http://website.com<>`,
     },
     {
         description: 'should prevent link paste handling if text is already inside link markup',
